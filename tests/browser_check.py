@@ -18,10 +18,10 @@ with sync_playwright() as p:
   for i,s in enumerate(scenes[1:25],1):
    page.wait_for_selector(f'[data-scene="{s["id"]}"]');page.wait_for_timeout(30 if reduced else 680)
    assert page.locator('.scene').evaluate('(el)=>el.scrollWidth<=el.clientWidth+1'),(name,s['id'],'horizontal overflow')
-   # Open every detailed record; native modal traps focus and Escape restores it.
-   d=page.locator('[data-action="detail"]')
-   if d.count():
-    d.click();assert page.locator('#detail-dialog').is_visible();assert s['source'] in page.locator('#detail-source').inner_text();page.keyboard.press('Escape');assert not page.locator('#detail-dialog').is_visible()
+   if s['source']:
+    assert page.locator('.field-record').count()==1
+    assert page.locator('.field-record p').inner_text()==s['detail']
+   assert page.locator('[data-action="detail"]').count()==0
    for option in page.locator('[data-option]').all():
     option.click();assert option.get_attribute('aria-pressed')=='true'
    if s['kind']=='forest':
@@ -34,18 +34,25 @@ with sync_playwright() as p:
     page.wait_for_timeout(1100);assert page.locator('[data-counter]').inner_text()=='16'
     page.locator('[data-action="churches"]').click();page.wait_for_timeout(1100)
     assert page.locator('[data-counter]').inner_text()=='162';assert page.locator('.church-dots .on').count()==162
+    page.locator('[data-action="churches"]').click();page.wait_for_timeout(1100)
+    assert page.locator('[data-counter]').inner_text()=='16'
+    page.locator('[data-action="churches"]').click();page.wait_for_timeout(1100)
    if s['kind']=='calendar':
     assert '봄' in page.locator('.calendar-season').inner_text()
     for season in ['여름','가을','겨울','봄']:
      page.locator('[data-action="season"]').click();assert season in page.locator('.calendar-season').inner_text()
    if s['kind']=='connect':
     page.locator('[data-action="connect"]').click();assert page.locator('.connection').get_attribute('class')=='connection connected'
+    page.locator('[data-action="connect"]').click();assert page.locator('.connection').get_attribute('class')=='connection'
    if s['kind']=='nepal':
     page.locator('[data-action="nepal"]').click();assert page.locator('#nepal-reveal').is_visible();assert '11.3t' in page.locator('#nepal-reveal').inner_text()
+    page.locator('[data-action="nepal"]').click();assert page.locator('#nepal-reveal').is_hidden()
    if s['kind']=='river':
     page.locator('[data-action="river"]').click();page.wait_for_timeout(1100)
     assert page.locator('[data-counter="20000"]').inner_text()=='20,000+'
     assert page.locator('[data-counter="620"]').inner_text()=='620'
+    page.locator('[data-action="river"]').click();page.wait_for_timeout(1100)
+    assert page.locator('[data-counter="20000"]').inner_text()=='0'
    if s['kind']=='film':
     strip=page.locator('.filmstrip');strip.evaluate('(el)=>el.scrollLeft=el.scrollWidth');assert strip.evaluate('(el)=>el.scrollLeft')>0
    if s['id'] in ['we-are-trees','churches','another-world','your-recovery']:

@@ -14,9 +14,11 @@ with sync_playwright() as p:
  cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':300,'y':200}]})
  for x in [250,200,150,100]:cdp.send('Input.dispatchTouchEvent',{'type':'touchMove','touchPoints':[{'x':x,'y':200}]})
  cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]});page.wait_for_selector('[data-scene="research"]')
- page.goto('http://127.0.0.1:4173/#we-are-trees');page.wait_for_selector('.forest');page.tap('[data-action="grow"]');assert page.locator('.tree').count()==3
- # Modal Tab loop remains in dialog; Escape restores trigger focus.
- page.tap('[data-action="detail"]');page.keyboard.press('Tab');assert page.evaluate('document.activeElement.closest("dialog") !== null');page.keyboard.press('Escape');assert page.locator('[data-action="detail"]').evaluate('(e)=>e===document.activeElement')
+ page.goto('http://127.0.0.1:4173/#we-are-trees');page.wait_for_selector('.forest');page.tap('[data-action="grow"]');assert page.locator('.tree').count()==9
+ page.tap('[data-action="grow"]');assert page.locator('.tree').count()==2
+ # Inline field notes need no dialog; the chapter dialog retains focus.
+ assert page.locator('.field-record').is_visible()
+ page.tap('#menu');page.keyboard.press('Tab');assert page.evaluate('document.activeElement.closest("dialog") !== null');page.keyboard.press('Escape');assert page.locator('#menu').evaluate('(e)=>e===document.activeElement')
  page.goto('http://127.0.0.1:4173/#your-recovery');page.tap('[data-choice="1"]');page.wait_for_selector('#result-card');page.wait_for_timeout(400)
  # Force non-Web-Share fallback (this API may be unavailable in Chromium).
  page.evaluate('Object.defineProperty(navigator,"canShare",{value:()=>false,configurable:true})')

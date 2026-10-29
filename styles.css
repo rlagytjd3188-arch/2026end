@@ -32,3 +32,16 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
 .brand-logo{display:block;width:52px;height:52px;object-fit:contain;flex-shrink:0}
 .menu-button{min-width:44px;justify-content:center;padding:10px}
 @media(max-width:760px){.brand-logo{width:44px;height:44px}.navigation button span{display:inline;font-size:10px}.nav-back,.nav-next{gap:6px}}
+/* Activity titles and always-visible field notes. */
+.scene h2{overflow-wrap:anywhere;line-height:1.24}
+.field-record{margin-top:24px;padding-top:18px;border-top:1px solid var(--line);max-width:650px}
+.field-record .record-label{display:block;font-size:10px;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.field-record p{font-size:13px;line-height:1.95;color:var(--muted);margin:0;word-break:keep-all;overflow-wrap:anywhere}
+.possibility h2{font-family:Recovery,'Noto Sans CJK KR',sans-serif;font-size:clamp(42px,5vw,76px);line-height:1.25}
+.visual figcaption:empty{display:none}
+.interactive-button{position:relative}
+.interactive-button::before{content:'';position:absolute;inset:0;border:1px solid var(--lime);pointer-events:none;animation:buttonHeartbeat 2.8s ease-out infinite}
+.interactive-button:hover::before,.interactive-button:focus-visible::before{animation:none;opacity:0}
+@keyframes buttonHeartbeat{0%,48%,100%{transform:scale(1);opacity:0}12%{opacity:.36}26%{transform:scale(1.035,1.12);opacity:0}32%{transform:scale(1);opacity:.2}44%{transform:scale(1.025,1.08);opacity:0}}
+@media(max-width:760px){.field-record{margin-top:18px;padding-top:15px}.field-record p{font-size:12px;line-height:1.85}.possibility h2{font-size:clamp(32px,8vw,48px)}}
+@media(prefers-reduced-motion:reduce){.interactive-button::before{animation:none!important;opacity:0}}
