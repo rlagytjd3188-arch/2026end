@@ -1,0 +1,26 @@
+[
+  {
+    "viewport": "desktop",
+    "scenes": 26,
+    "cards": 4,
+    "console_errors": [],
+    "failed_requests": [],
+    "checks": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "scenes": 26,
+    "cards": 4,
+    "console_errors": [],
+    "failed_requests": [],
+    "checks": "PASS"
+  },
+  {
+    "viewport": "small-reduced",
+    "scenes": 26,
+    "cards": 4,
+    "console_errors": [],
+    "failed_requests": [],
+    "checks": "PASS"
+  }
+]
