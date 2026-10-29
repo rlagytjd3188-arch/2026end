@@ -1,7 +1,7 @@
 [
   {
     "viewport": "desktop",
-    "scenes": 26,
+    "scenes": 25,
     "cards": 4,
     "console_errors": [],
     "failed_requests": [],
@@ -9,7 +9,7 @@
   },
   {
     "viewport": "mobile",
-    "scenes": 26,
+    "scenes": 25,
     "cards": 4,
     "console_errors": [],
     "failed_requests": [],
@@ -17,7 +17,7 @@
   },
   {
     "viewport": "small-reduced",
-    "scenes": 26,
+    "scenes": 25,
     "cards": 4,
     "console_errors": [],
     "failed_requests": [],

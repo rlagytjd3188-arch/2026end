@@ -28,7 +28,7 @@ with sync_playwright() as p:
  # Offline release must make no network request and still export a real PNG.
  c=b.new_context(viewport={'width':1440,'height':960},reduced_motion='reduce');page=c.new_page();errors=[];requests=[];page.on('pageerror',lambda e:errors.append(str(e)));page.on('request',lambda r:requests.append(r.url) if r.url.startswith('http') and r.resource_type!='document' else None)
  page.goto('http://127.0.0.1:4173/dist/RECOVERY44.html');page.wait_for_selector('.hero');page.wait_for_function('document.fonts.status==="loaded"');page.screenshot(path=str(out/'desktop-final-opening.png'))
- page.locator('#menu').click();page.locator('[data-chapter="24"]').click();page.locator('[data-choice="0"]').click();page.wait_for_timeout(500)
+ page.locator('#menu').click();page.locator('#chapter-list a[href="#your-recovery"]').click();page.locator('[data-choice="0"]').click();page.wait_for_timeout(500)
  with page.expect_download() as d:page.locator('[data-action="download"]').click()
  d.value.save_as(out/'offline-card-final.png');assert not errors,errors;assert not requests,requests;print('self-contained HTML / card export / zero additional requests: PASS')
  c.close();b.close()

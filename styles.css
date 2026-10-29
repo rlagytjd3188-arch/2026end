@@ -50,3 +50,13 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
 /* Show the uploaded calendar photo without cropping its printed content. */
 .calendar-paper img{display:block;height:auto;max-height:360px;object-fit:contain}
 @media(max-width:760px){.calendar-paper img{height:auto;max-height:320px}}
+/* One combined walking chapter, with each movement identified by color. */
+.walking-title-0,.walking-title-1{display:block}
+.walking-title-0{color:#cefa73}.walking-title-1{color:#a9dfee}
+.calendar-photo{margin:0;width:100%;display:flex;justify-content:center}
+.calendar-photo img{display:block;width:auto;max-width:100%;height:auto;max-height:68vh;object-fit:contain}
+.photo-position{font-family:monospace;font-size:11px;letter-spacing:.1em;color:var(--muted);margin:16px 0}
+#carbon-dialog{--muted:#475849;--lime:#42662e}
+#carbon-dialog .emission-bar{background:#14291b14}
+#carbon-dialog .nepal-message{color:#24482d;font-size:20px}
+@media(max-width:760px){.calendar-photo img{max-height:65vh}.film h2 .walking-title-0,.film h2 .walking-title-1{font-size:clamp(29px,8vw,44px)}}

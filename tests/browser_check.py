@@ -15,7 +15,7 @@ with sync_playwright() as p:
   page.goto('http://127.0.0.1:4173');page.wait_for_selector('.hero');page.wait_for_function('document.fonts.status === "loaded"');page.wait_for_timeout(750);page.screenshot(path=str(OUT/f'{name}-opening.png'))
   assert page.locator('#previous').is_disabled()
   page.locator('[data-action="next"]').click()
-  for i,s in enumerate(scenes[1:25],1):
+  for i,s in enumerate(scenes[1:-1],1):
    page.wait_for_selector(f'[data-scene="{s["id"]}"]');page.wait_for_timeout(30 if reduced else 680)
    assert page.locator('.scene').evaluate('(el)=>el.scrollWidth<=el.clientWidth+1'),(name,s['id'],'horizontal overflow')
    if s['source']:
@@ -38,15 +38,20 @@ with sync_playwright() as p:
     assert page.locator('[data-counter]').inner_text()=='16'
     page.locator('[data-action="churches"]').click();page.wait_for_timeout(1100)
    if s['kind']=='calendar':
-    assert '봄' in page.locator('.calendar-season').inner_text()
-    for season in ['여름','가을','겨울','봄']:
-     page.locator('[data-action="season"]').click();assert season in page.locator('.calendar-season').inner_text()
-   if s['kind']=='connect':
-    page.locator('[data-action="connect"]').click();assert page.locator('.connection').get_attribute('class')=='connection connected'
-    page.locator('[data-action="connect"]').click();assert page.locator('.connection').get_attribute('class')=='connection'
+    assert page.locator('.calendar-photo img').evaluate('(im)=>im.complete && im.naturalWidth==540')
+    assert page.locator('[data-action="season"]').count()==0
+    assert page.locator('.calendar-season').count()==0
+   if s['kind'] in ['photo-gallery','possibility']:
+    image=page.locator('.visual img');seen=[]
+    for n in range(len(s['photos'])):
+     seen.append(image.get_attribute('src'));page.locator('[data-action="photo-next"]').click()
+    assert len(set(seen))==len(s['photos'])
+    assert image.get_attribute('src')==seen[0]
    if s['kind']=='nepal':
-    page.locator('[data-action="nepal"]').click();assert page.locator('#nepal-reveal').is_visible();assert '11.3t' in page.locator('#nepal-reveal').inner_text()
-    page.locator('[data-action="nepal"]').click();assert page.locator('#nepal-reveal').is_hidden()
+    page.locator('[data-action="nepal"]').click();assert page.locator('#carbon-dialog').is_visible();assert '11.3t' in page.locator('#carbon-dialog').inner_text()
+    page.keyboard.press('Tab');assert page.evaluate('document.activeElement.closest("#carbon-dialog")!==null')
+    page.keyboard.press('Escape');assert not page.locator('#carbon-dialog').is_visible()
+    assert page.locator('[data-action="nepal"]').evaluate('(el)=>el===document.activeElement')
    if s['kind']=='river':
     page.locator('[data-action="river"]').click();page.wait_for_timeout(1100)
     assert page.locator('[data-counter="20000"]').inner_text()=='20,000+'
@@ -58,7 +63,7 @@ with sync_playwright() as p:
    if s['id'] in ['we-are-trees','churches','another-world','your-recovery']:
     page.locator('.scene').evaluate('(el)=>el.scrollTop=0');page.wait_for_timeout(750);page.screenshot(path=str(OUT/f'{name}-{s["id"]}.png'))
    # Back/forward preserves interaction state and works for every scene.
-   if i<24:
+   if i<len(scenes)-2:
     page.locator('#next').click();page.locator('#previous').click();page.wait_for_selector(f'[data-scene="{s["id"]}"]');page.locator('#next').click()
   # Four genuinely distinct cards and PNG dimensions.
   downloads=[]
@@ -84,10 +89,10 @@ with sync_playwright() as p:
    el.dispatchEvent(new TouchEvent('touchend',{bubbles:true,changedTouches:[t(60,225)]}));
   }""")
   page.wait_for_selector('[data-scene="beginning"]')
-  page.locator('#menu').click();page.locator('[data-chapter="21"]').click();page.wait_for_selector('.possibility')
+  page.locator('#menu').click();page.locator('#chapter-list a[href="#another-world"]').click();page.wait_for_selector('.possibility')
   assert not page.locator('#map-dialog').is_visible()
   assert not errors,(name,errors);assert not bad,(name,bad)
-  results.append({'viewport':name,'scenes':26,'cards':4,'console_errors':errors,'failed_requests':bad,'checks':'PASS'})
+  results.append({'viewport':name,'scenes':len(scenes),'cards':4,'console_errors':errors,'failed_requests':bad,'checks':'PASS'})
   context.close()
  # Failure states: data and photo errors produce readable recoverable UI.
  c=browser.new_context();page=c.new_page();page.route('**/data/scenes.json',lambda route:route.fulfill(status=503,body='unavailable'));page.goto('http://127.0.0.1:4173');page.wait_for_selector('#retry');page.unroute('**/data/scenes.json');page.locator('#retry').click();page.wait_for_selector('.hero');c.close()
