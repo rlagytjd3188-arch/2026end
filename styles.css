@@ -45,3 +45,6 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
 @keyframes buttonHeartbeat{0%,48%,100%{transform:scale(1);opacity:0}12%{opacity:.36}26%{transform:scale(1.035,1.12);opacity:0}32%{transform:scale(1);opacity:.2}44%{transform:scale(1.025,1.08);opacity:0}}
 @media(max-width:760px){.field-record{margin-top:18px;padding-top:15px}.field-record p{font-size:12px;line-height:1.85}.possibility h2{font-size:clamp(32px,8vw,48px)}}
 @media(prefers-reduced-motion:reduce){.interactive-button::before{animation:none!important;opacity:0}}
+/* Show the uploaded calendar photo without cropping its printed content. */
+.calendar-paper img{display:block;height:auto;max-height:360px;object-fit:contain}
+@media(max-width:760px){.calendar-paper img{height:auto;max-height:320px}}

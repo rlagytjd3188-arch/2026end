@@ -9,7 +9,11 @@ css=(root/'styles.css').read_text()
 for p in (root/'assets').glob('*.woff'):css=css.replace('assets/'+p.name,uri(p,'font/woff'))
 js=(root/'app.js').read_text().replace("const path = id => `assets/photos/${id}.webp`;","const path = id => EMBEDDED_PHOTOS[id];")
 js=js.replace("const res=await fetch('data/scenes.json');","const res={ok:true,json:async()=>EMBEDDED_SCENES};")
-js='const EMBEDDED_PHOTOS='+json.dumps(photos)+';\nconst EMBEDDED_SCENES='+(root/'data/scenes.json').read_text()+';\n'+js
+scenes=json.loads((root/'data/scenes.json').read_text())
+for scene in scenes:
+ if scene.get('image'):
+  scene['image']=uri(root/scene['image'],'image/png')
+js='const EMBEDDED_PHOTOS='+json.dumps(photos)+';\nconst EMBEDDED_SCENES='+json.dumps(scenes,ensure_ascii=False)+';\n'+js
 html=(root/'index.html').read_text()
 html=html.replace('assets/logo.jpg',uri(root/'assets/logo.jpg','image/jpeg'))
 html=re.sub(r'<link rel="preload"[^>]*>','',html)
