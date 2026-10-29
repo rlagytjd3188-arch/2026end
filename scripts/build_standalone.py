@@ -1,5 +1,5 @@
 """Create an offline, self-contained HTML release using only the Python standard library."""
-import base64,json,pathlib,re,sys
+import base64,json,pathlib,re,sys,mimetypes
 root=pathlib.Path(__file__).resolve().parents[1]
 output=pathlib.Path(sys.argv[1]) if len(sys.argv)>1 else root/'dist/RECOVERY44.html'
 output.parent.mkdir(parents=True,exist_ok=True)
@@ -12,7 +12,7 @@ js=js.replace("const res=await fetch('data/scenes.json');","const res={ok:true,j
 scenes=json.loads((root/'data/scenes.json').read_text())
 for scene in scenes:
  if scene.get('image'):
-  scene['image']=uri(root/scene['image'],'image/png')
+  scene['image']=uri(root/scene['image'],mimetypes.guess_type(scene['image'])[0] or 'application/octet-stream')
 js='const EMBEDDED_PHOTOS='+json.dumps(photos)+';\nconst EMBEDDED_SCENES='+json.dumps(scenes,ensure_ascii=False)+';\n'+js
 html=(root/'index.html').read_text()
 html=html.replace('assets/logo.jpg',uri(root/'assets/logo.jpg','image/jpeg'))
