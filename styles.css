@@ -60,3 +60,11 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
 #carbon-dialog .emission-bar{background:#14291b14}
 #carbon-dialog .nepal-message{color:#24482d;font-size:20px}
 @media(max-width:760px){.calendar-photo img{max-height:65vh}.film h2 .walking-title-0,.film h2 .walking-title-1{font-size:clamp(29px,8vw,44px)}}
+/* Every scene action invites interaction before a click, including photo tabs. */
+.scene button.interactive-button{animation:buttonHeartbeat 1.9s ease-in-out infinite;transform-origin:center}
+.scene .chip.interactive-button{animation-name:smallButtonHeartbeat}
+.scene .chip[aria-pressed="true"]{animation:none;box-shadow:none}
+.scene .chip[aria-pressed="true"]::before{animation:none;opacity:0}
+.scene button.interactive-button:active{animation-play-state:running}
+@keyframes smallButtonHeartbeat{0%,52%,100%{transform:scale(1);box-shadow:0 0 0 0 #cefa7300}16%{transform:scale(1.045);box-shadow:0 0 14px 3px #cefa7359}28%{transform:scale(1.005)}40%{transform:scale(1.025);box-shadow:0 0 10px 2px #cefa7340}}
+@media(prefers-reduced-motion:reduce){.scene button.interactive-button{animation:none!important;transform:none!important;box-shadow:none}}

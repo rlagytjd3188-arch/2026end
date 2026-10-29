@@ -24,10 +24,6 @@ with sync_playwright() as p:
    assert page.locator('[data-action="detail"]').count()==0
    for option in page.locator('[data-option]').all():
     option.click();assert option.get_attribute('aria-pressed')=='true'
-   if s['kind']=='forest':
-    for _ in range(7):page.locator('[data-action="grow"]').click()
-    assert page.locator('.tree').count()==9
-    assert '우리가 풍천리의 나무다' in page.locator('#forest-response').inner_text()
    if s['kind']=='timeline':
     page.locator('[data-step="2"]').click();assert '위법성' in page.locator('.timeline-copy').inner_text()
    if s['kind']=='churches':
@@ -60,7 +56,7 @@ with sync_playwright() as p:
     assert page.locator('[data-counter="20000"]').inner_text()=='0'
    if s['kind']=='film':
     strip=page.locator('.filmstrip');strip.evaluate('(el)=>el.scrollLeft=el.scrollWidth');assert strip.evaluate('(el)=>el.scrollLeft')>0
-   if s['id'] in ['we-are-trees','churches','another-world','your-recovery']:
+   if s['id'] in ['gadeok','churches','another-world','your-recovery']:
     page.locator('.scene').evaluate('(el)=>el.scrollTop=0');page.wait_for_timeout(750);page.screenshot(path=str(OUT/f'{name}-{s["id"]}.png'))
    # Back/forward preserves interaction state and works for every scene.
    if i<len(scenes)-2:
