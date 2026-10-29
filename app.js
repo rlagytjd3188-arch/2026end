@@ -19,7 +19,7 @@
   const head = s => `<span class="eyebrow">${escape(s.eyebrow || label(s))}</span><h2 tabindex="-1">${escape(s.title)}</h2><p class="copy">${escape(s.copy)}</p>`;
   const detail = s => s.source ? `<div class="field-record"><span class="record-label">현장의 기록</span><p>${escape(s.detail)}</p></div>` : '';
   const chips = labels => `<div class="switches">${labels.map((v,i)=>`<button class="chip" data-option="${i}" aria-pressed="${i===0}">${escape(v)}</button>`).join('')}</div>`;
-  const button = (text,action,cls='primary') => `<button class="${cls}${['churches','connect','nepal','river','season'].includes(action)?' interactive-button':''}" data-action="${action}"${['churches','connect','nepal','river'].includes(action)?' aria-pressed="false"':''}>${text}</button>`;
+  const button = (text,action,cls='primary') => `<button class="${cls}${cls==='primary'||['churches','connect','nepal','river','season'].includes(action)?' interactive-button':''}" data-action="${action}"${['churches','connect','nepal','river'].includes(action)?' aria-pressed="false"':''}>${text}</button>`;
   function render(s) {
     let html;
     switch (s.kind) {

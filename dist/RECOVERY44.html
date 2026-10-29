@@ -45,12 +45,14 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
 .field-record p{font-size:13px;line-height:1.95;color:var(--muted);margin:0;word-break:keep-all;overflow-wrap:anywhere}
 .possibility h2{font-family:Recovery,'Noto Sans CJK KR',sans-serif;font-size:clamp(42px,5vw,76px);line-height:1.25}
 .visual figcaption:empty{display:none}
-.interactive-button{position:relative}
-.interactive-button::before{content:'';position:absolute;inset:0;border:1px solid var(--lime);pointer-events:none;animation:buttonHeartbeat 2.8s ease-out infinite}
-.interactive-button:hover::before,.interactive-button:focus-visible::before{animation:none;opacity:0}
-@keyframes buttonHeartbeat{0%,48%,100%{transform:scale(1);opacity:0}12%{opacity:.36}26%{transform:scale(1.035,1.12);opacity:0}32%{transform:scale(1);opacity:.2}44%{transform:scale(1.025,1.08);opacity:0}}
+.interactive-button{position:relative;transform-origin:center;animation:buttonHeartbeat 1.9s ease-in-out infinite;will-change:transform;box-shadow:0 0 0 0 #cefa7300}
+.interactive-button::before{content:'';position:absolute;inset:-5px;border:1px solid var(--lime);pointer-events:none;opacity:.5;animation:buttonHalo 1.9s ease-out infinite}
+.interactive-button:hover::before,.interactive-button:focus-visible::before{opacity:.8}
+.interactive-button:active{animation-play-state:paused;transform:scale(.98)!important}
+@keyframes buttonHeartbeat{0%,52%,100%{transform:scale(1);box-shadow:0 0 0 0 #cefa7300}16%{transform:scale(1.055);box-shadow:0 0 20px 4px #cefa734d}28%{transform:scale(1.008);box-shadow:0 0 6px 1px #cefa7326}40%{transform:scale(1.035);box-shadow:0 0 14px 3px #cefa733d}}
+@keyframes buttonHalo{0%,52%,100%{transform:scale(1);opacity:.1}16%{transform:scale(1.04,1.1);opacity:.7}28%{transform:scale(1);opacity:.25}40%{transform:scale(1.025,1.07);opacity:.5}}
 @media(max-width:760px){.field-record{margin-top:18px;padding-top:15px}.field-record p{font-size:12px;line-height:1.85}.possibility h2{font-size:clamp(32px,8vw,48px)}}
-@media(prefers-reduced-motion:reduce){.interactive-button::before{animation:none!important;opacity:0}}
+@media(prefers-reduced-motion:reduce){.interactive-button{animation:none!important;transform:none!important;box-shadow:none;will-change:auto}.interactive-button::before{animation:none!important;opacity:.45}}
 /* Show the uploaded calendar photo without cropping its printed content. */
 .calendar-paper img{display:block;height:auto;max-height:360px;object-fit:contain}
 @media(max-width:760px){.calendar-paper img{height:auto;max-height:320px}}
@@ -88,7 +90,7 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
   const head = s => `<span class="eyebrow">${escape(s.eyebrow || label(s))}</span><h2 tabindex="-1">${escape(s.title)}</h2><p class="copy">${escape(s.copy)}</p>`;
   const detail = s => s.source ? `<div class="field-record"><span class="record-label">현장의 기록</span><p>${escape(s.detail)}</p></div>` : '';
   const chips = labels => `<div class="switches">${labels.map((v,i)=>`<button class="chip" data-option="${i}" aria-pressed="${i===0}">${escape(v)}</button>`).join('')}</div>`;
-  const button = (text,action,cls='primary') => `<button class="${cls}${['churches','connect','nepal','river','season'].includes(action)?' interactive-button':''}" data-action="${action}"${['churches','connect','nepal','river'].includes(action)?' aria-pressed="false"':''}>${text}</button>`;
+  const button = (text,action,cls='primary') => `<button class="${cls}${cls==='primary'||['churches','connect','nepal','river','season'].includes(action)?' interactive-button':''}" data-action="${action}"${['churches','connect','nepal','river'].includes(action)?' aria-pressed="false"':''}>${text}</button>`;
   function render(s) {
     let html;
     switch (s.kind) {
