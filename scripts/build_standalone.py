@@ -11,6 +11,7 @@ js=(root/'app.js').read_text().replace("const path = id => `assets/photos/${id}.
 js=js.replace("const res=await fetch('data/scenes.json');","const res={ok:true,json:async()=>EMBEDDED_SCENES};")
 js='const EMBEDDED_PHOTOS='+json.dumps(photos)+';\nconst EMBEDDED_SCENES='+(root/'data/scenes.json').read_text()+';\n'+js
 html=(root/'index.html').read_text()
+html=html.replace('assets/logo.jpg',uri(root/'assets/logo.jpg','image/jpeg'))
 html=re.sub(r'<link rel="preload"[^>]*>','',html)
 html=html.replace('<link rel="stylesheet" href="styles.css">','<style>'+css+'</style>')
 html=html.replace('<script src="app.js" defer></script>','')
