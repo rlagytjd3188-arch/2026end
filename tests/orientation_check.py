@@ -1,3 +1,4 @@
+from ui_helpers import mock_uploads, accept_consent, ENDPOINT
 """Landscape rendering and rotation state, using the local server on port 4173."""
 from pathlib import Path
 import json
@@ -9,7 +10,7 @@ with sync_playwright() as p:
  for build in ['', 'dist/RECOVERY44.html']:
   for w,h in [(390,844),(320,568)]:
    c=b.new_context(viewport={'width':w,'height':h},is_mobile=True,has_touch=True,reduced_motion='reduce')
-   page=c.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+   mock_uploads(c);page=c.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
    page.goto('http://127.0.0.1:4173/'+build);page.wait_for_selector('.hero')
    assert page.locator('#orientation-guide').count()==0
    shell=page.locator('#app-shell')
@@ -44,7 +45,7 @@ with sync_playwright() as p:
    page.goto('http://127.0.0.1:4173/'+build+'#nepal');page.locator('[data-action="nepal"]').tap();assert page.locator('#carbon-dialog').is_visible();page.locator('#carbon-dialog [data-close]').tap()
    page.goto('http://127.0.0.1:4173/'+build+'#your-recovery');page.locator('[data-choice="0"]').tap()
    page.wait_for_function('document.querySelector("#result-card")?.getAttribute("aria-busy")==="false"')
-   with page.expect_download():page.locator('[data-action="download"]').tap()
+   with page.expect_download():page.locator('[data-action="download"]').tap();accept_consent(page)
    page.set_viewport_size({'width':h,'height':w});page.wait_for_selector('#result-card')
    assert not errors,errors
    results.append({'viewport':f'{w}x{h} ↔ {h}x{w}','build':build or 'source','checks':'PASS'});c.close()

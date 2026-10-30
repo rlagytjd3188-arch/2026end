@@ -164,21 +164,6 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
  .river .field-record{grid-column:1/-1}
 }
 
-.photo-position-controls{grid-template-columns:minmax(0,1fr) minmax(82px,.7fr);gap:12px}
-.photo-coordinate-help{grid-column:1/-1;font-size:11px;line-height:1.7;color:#475849;margin:0}
-.photo-coordinate-pad{position:relative;height:130px;min-width:0;border:1px solid #24482d66;border-radius:4px;background-color:#e8eade;background-image:linear-gradient(#24482d18 1px,transparent 1px),linear-gradient(90deg,#24482d18 1px,transparent 1px);background-size:25% 25%;touch-action:none;user-select:none;cursor:crosshair}
-.photo-coordinate-pad::before,.photo-coordinate-pad::after{content:'';position:absolute;pointer-events:none;background:#24482d70}
-.photo-coordinate-pad::before{left:0;right:0;top:50%;height:1px}
-.photo-coordinate-pad::after{top:0;bottom:0;left:50%;width:1px}
-.photo-coordinate-pad:focus-visible{outline:3px solid #24482d;outline-offset:3px}
-.photo-coordinate-dot{position:absolute;z-index:2;left:50%;top:50%;width:16px;height:16px;background:#24482d;border:3px solid #cefa73;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 1px 6px #10271b55;pointer-events:none}
-.photo-coordinate-pad>span:not(.photo-coordinate-dot){position:absolute;z-index:1;font:10px Arial,sans-serif;color:#24482d;pointer-events:none}
-.coordinate-north{top:5px;left:calc(50% + 6px)}.coordinate-south{bottom:5px;left:calc(50% + 6px)}.coordinate-east{right:5px;top:calc(50% + 5px)}.coordinate-west{left:5px;top:calc(50% + 5px)}
-.photo-coordinate-values{display:grid;gap:6px;min-width:0;align-content:start}
-.photo-coordinate-values label{gap:3px}
-.photo-coordinate-values input{font:12px Recovery,sans-serif;color:#10271b;background:#fff8;border:1px solid #24482d55;padding:5px 8px;min-height:32px;touch-action:auto}
-#photo-coordinate-output{font:11px monospace;color:#24482d}
-.photo-coordinate-values .text-link{margin:0;justify-self:start;min-height:36px;padding:6px 0;font-size:11px}
 @media(orientation:landscape) and (max-height:600px) and (any-pointer:coarse), (orientation:portrait) and (max-width:767px) and (any-pointer:coarse){
  .result-card{width:min(100%,200px,calc(80cqh - 120px));max-width:none;height:auto}
  .result-layout>div:last-child{top:0}
@@ -196,3 +181,12 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
 #uploaded-card{margin:16px 0 0}
 #uploaded-card img{display:block;width:min(100%,180px);height:auto;border:1px solid #24482d44}
 #uploaded-card figcaption{font-size:10px;line-height:1.6;color:#475849;margin-top:8px}
+
+.photo-position-controls{grid-template-columns:1fr 1fr;gap:14px}
+.photo-buttons .primary{min-height:44px;padding:12px 16px;font-size:11px;gap:20px}
+.consent-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:12px;margin-top:24px}
+#consent-dialog{width:min(560px,calc(100cqw - 32px))}
+#consent-dialog .primary{background:#24482d;color:#fff;font-size:12px;min-height:48px;padding:12px 18px;gap:16px}
+#consent-dialog .secondary{min-height:48px}
+#upload-error-detail{color:#8c2525}
+.card-upload [hidden]{display:none!important}

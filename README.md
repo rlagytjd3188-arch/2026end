@@ -67,11 +67,11 @@ python scripts/build_standalone.py
 
 ## 내 사진으로 회복 카드 만들기
 
-회복 유형을 선택한 결과 화면에서 **사진 찍기** 또는 **사진 선택하기**를 누르면 내 사진에 회복 문구와 프레임을 얹습니다. 사진의 가로·세로 위치를 조절해 구도를 맞춘 뒤 **나의 회복 PNG 저장**이나 **카드 공유하기**를 이용하세요. 출력 크기는 1080×1350입니다. 사진은 카드 영역을 채우도록 표시되어 가장자리가 일부 잘릴 수 있습니다.
+회복 유형을 선택한 결과 화면에서 **사진 찍기** 또는 **사진 선택하기**를 누르면 내 사진에 회복 문구와 프레임을 얹습니다. 사진의 가로·세로 위치를 조절해 구도를 맞춘 뒤 **나의 회복 저장 및 보내기**이나 **카드 공유하기**를 이용하세요. 출력 크기는 1080×1350입니다. 사진은 카드 영역을 채우도록 표시되어 가장자리가 일부 잘릴 수 있습니다.
 
 ‘사진 찍기’는 지원하는 모바일 브라우저에서 카메라 촬영을 요청합니다. 기기·브라우저에 따라 파일 선택 화면으로 열릴 수 있습니다. 선택한 원본은 브라우저 안에서만 처리합니다. 참여자가 별도 동의하고 보내기 버튼을 누른 완성 카드만 운영자의 Dropbox에 저장합니다. 다른 회복 유형을 고를 때는 같은 사진과 위치를 유지하고, 기본 사진으로 돌아가기·처음부터 다시 걷기·새로고침 시 선택 사진을 비웁니다. HEIC/HEIF가 브라우저에서 바로 열리지 않으면 로컬 변환기를 사용합니다. 변환이 불가능한 파일은 JPG·PNG·WebP로 저장한 뒤 다시 선택하세요. 실제 iOS/Android 카메라 및 OS 공유 시트는 별도 실기기 확인이 필요합니다.
 
-검증: 로컬 서버 실행 후 `python3 tests/photo_card_check.py`. 임시로 생성한 세로·가로 이미지를 사용해 사진 입력·위치 조절·PNG 픽셀·프레임·4개 유형·취소·실패·초기화·업로드 요청 없음을 분리 소스와 단일 HTML에서 검사합니다.
+검증: 로컬 서버 실행 후 `python3 tests/photo_card_check.py`. 임시로 생성한 세로·가로 이미지를 사용해 사진 입력·위치 조절·PNG 픽셀·프레임·4개 유형·취소·실패·초기화·동의 전 전송 금지와 동의 후 모의 전송을 분리 소스와 단일 HTML에서 검사합니다.
 
 ## 휴대폰 가로 보기
 
@@ -85,29 +85,27 @@ python scripts/build_standalone.py
 
 `python3 tests/mobile_reading_check.py`는 실제 Chromium 터치 입력으로 긴 본문 끝까지 이동, 마지막 문장이 하단 내비게이션 위에 보이는지, 팝업 스크롤, 첫 장 겹침과 행진 참여 버튼/숫자 노출을 검사합니다. 분리 소스와 단일 HTML, 두 크기의 실제 가로/옆으로 표시된 세로 상태를 모두 포함합니다.
 
-## 사진 위치 좌표 조절
+## 저장·보내기 동의 및 수동 재시도
 
-기존 가로/세로 슬라이더 대신 X·Y 좌표 격자를 제공합니다. 원점은 (0, 0)이며 범위는 각각 -100~100입니다. +X는 사진을 오른쪽으로, +Y는 위쪽으로 옮깁니다. 격자의 점을 끌거나 좌표 값을 입력하세요. 격자에 초점을 두고 방향키(1씩), Shift+방향키(10씩)로 조절할 수 있고 Home 또는 ‘가운데로’ 버튼은 (0, 0)으로 되돌립니다. 빈 공간이 생기지 않도록 프레임을 채우는 범위에서 움직이므로, 사진 비율에 따라 한 축의 이동 범위가 없을 수 있습니다. 휴대폰에서 옆으로 표시되는 상태에도 같은 좌표 방향을 사용합니다.
+좌표 격자는 삭제하고 좌우·위아래 슬라이더로 사진 위치를 조절합니다. ‘사진 찍기’와 ‘사진 선택하기’는 초록색 버튼이며 사진 수·형식·보관 설명과 결과 화면의 2026/2027 문구는 화면에서 제거했습니다. 15MB 및 형식 검사는 유지합니다.
 
-좌표 조절 중에는 장면 스크롤·이동을 막고, 다른 회복 유형을 선택해도 사진 위치를 유지합니다. 수신처는 아래 Cloudflare Worker로 연결되었습니다. 동의 전에는 전송하지 않고, 동의 후 완성 PNG 카드 1장만 보냅니다.
+‘나의 회복 저장 및 보내기’를 누르면 동의 팝업이 열립니다. **동의해야 기기에 PNG를 저장하고 동일 카드를 운영자의 Dropbox에 전송**합니다. 동의하지 않거나 팝업을 닫으면 저장·전송하지 않습니다. 카드 공유 역시 동의 후 동작하고, Web Share를 지원하지 않는 경우에만 PNG로 저장합니다.
 
-검사: `python3 tests/coordinate_check.py` 및 `python3 tests/photo_card_check.py`.
+- API 주소: `https://recovery44-upload.kh3188.workers.dev/`
+- 기존 계약 유지: `POST`, `FormData`의 `file` 필드 한 개, 1080×1350 완성 PNG
+- 실패: ‘사진을 전송하지 못했습니다.’ 및 API 오류 상세와 **다시 시도** 표시
+- 재시도: 직전 전송의 **동일 Blob 객체**를 사용. Canvas/PNG를 다시 만들거나 파일을 다시 저장하지 않음
+- 재전송 중: 버튼 비활성화·‘다시 전송하는 중입니다…’, 자동 재시도 없음
+- 성공: ‘전송 완료 ✓’ 및 전송 카드 미리보기
+- 새 사진 선택/카드 재생성: 이전 실패 Blob·전송 상태·동의를 초기화
+- Dropbox 인증정보는 프런트엔드에 없음. 기존 Worker Secret 사용 유지
 
-## 완성 카드 → Cloudflare Worker → Dropbox
+## Worker 파일명 수정본 — 수동 반영
 
-결과 화면에서 사진을 선택하고 좌표를 조절한 뒤 **완성 카드가 운영자의 Dropbox에 전송·저장되는 데 동의합니다**를 체크하고 **완성 카드 보내기**를 누릅니다. 동의와 전송은 선택 사항이며 기존 PNG 저장·공유 기능도 그대로 사용할 수 있습니다.
+[붙여넣기용 전체 Worker](docs/worker/recovery44-upload.mjs)를 Cloudflare Edit code에 복사해 사용합니다. **이 파일은 검토용 사본이며 자동 배포하지 않습니다.** 사용자가 제공한 실제 정상 배포본에서 파일명 생성 블록만 변경했습니다. CORS·Secret·파일 검증·Dropbox API 호출·`/uploads/`·`mode: add`·`autorename: true`·`mute: false`는 그대로입니다.
 
-- 업로드 URL: `https://recovery44-upload.kh3188.workers.dev/`
-- 메서드/본문: `POST`, `FormData`의 **`file` 필드 한 개**
-- 전송 파일: 사용자가 선택한 원본 대신, **프레임·회복 문구가 들어간 1080×1350 PNG 카드 한 장**
-- 입력: `<input type="file" accept="image/*">`, multiple 없음. JPG/JPEG, PNG, WEBP, HEIC/HEIF 허용. 원본과 완성 카드 각각 최대 15×1024×1024 바이트.
-- 진행: 사진 생성·전송 상태를 표시하고 진행 중 추가 전송을 막습니다. 자동 재전송은 하지 않습니다.
-- 성공: HTTP 성공 응답이고 JSON의 `ok`가 boolean `true`이면 완료 표시 및 전송한 완성 카드 미리보기. 사진/문구를 바꿔도 미리보기는 ‘최근 전송을 완료한 카드’로 구분합니다.
-- 실패: JSON `error`(문자열 또는 error.message)를 텍스트로 그대로 표시. 네트워크·시간 초과에도 결과 상태를 보여줍니다.
-- 인증: 브라우저는 인증 헤더·쿠키 없이 Worker에만 보냅니다. **Dropbox Access Token/API 인증정보는 HTML/JavaScript에 없으며 Worker에서만 관리**합니다. multipart Content-Type은 브라우저가 boundary와 함께 설정합니다.
+파일명은 Worker가 `Asia/Seoul` 기준으로 `RECOVERY44_YYYYMMDD_HHMMSS_XXXX.png`를 만들며, XXXX는 A–Z 및 0–9의 무작위 4자리입니다. 브라우저가 보내는 `RECOVERY44_card.png`는 최종 저장 파일명에 사용하지 않습니다. 드물게 같은 이름이 발생하면 Dropbox autorename 안전장치가 처리합니다. 기존 `DROPBOX_ACCESS_TOKEN` Secret을 계속 사용하며 값을 소스에 넣지 않습니다.
 
-Worker는 운영 사이트 Origin에 대해 CORS를 허용하고 `{"ok":true}` 또는 `{"ok":false,"error":"메시지"}` 형식으로 응답해야 합니다. 이 클라우드 환경은 Worker 도메인에 대한 HTTPS 터널을 403으로 차단하므로 실제 Dropbox 저장/CORS 응답은 직접 확인하지 못했습니다. 지정 URL과 multipart 요청, 성공/실패 처리는 Chromium에서 Worker 응답을 모의해 검사했습니다. 테스트는 실제 Dropbox에 파일을 남기지 않습니다.
+사용자가 실제 모바일 GitHub Pages → Worker → Dropbox 저장 성공을 확인했습니다. 이후 클라우드 환경의 Worker 403을 해결하거나 우회하지 않으며, API·CORS 설정도 바꾸지 않습니다. 이번 검증은 전부 로컬/모의 요청이며 실제 Dropbox 최종 검증 및 Worker 반영은 사용자가 수행합니다.
 
-HEIC 변환: unmodified `heic-to` 1.6.7 IIFE를 `assets/vendor/`에 포함했습니다. 라이선스·출처는 [vendor README](assets/vendor/README.md) 및 [LGPL 라이선스](assets/vendor/heic-to-LICENSE.txt)를 참조하세요. 변환은 기기 안에서만 수행합니다. 단일 HTML도 변환기를 포함하므로 약 10.1MB이며, 사진 전송을 선택한 경우를 제외하면 추가 외부 파일 요청이 필요 없습니다.
-
-검사: `python3 tests/upload_check.py`. 실제 HEIC/HEIF 샘플과 JPEG/PNG/WEBP, 15MB 제한, 동의 전 전송 없음, 중복 방지, URL·메서드·file 필드·PNG 픽셀/크기·MIME, ok true/false, 오류 메시지와 네트워크 실패, 인증 헤더 없음 및 단일 HTML 독립 실행을 PC·휴대폰 가로/회전 상태에서 확인합니다.
+검사: `python3 tests/upload_check.py`, `python3 tests/photo_card_check.py`, `node tests/worker_filename_check.mjs`. Worker 검사도 실제 Dropbox 대신 모의 fetch로 요청 구조·한국 시간·랜덤 코드·autorename을 확인합니다. HEIC 변환기는 기존 assets/vendor 및 단일 HTML에 그대로 포함합니다.

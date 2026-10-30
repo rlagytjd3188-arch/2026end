@@ -3,60 +3,60 @@
     "viewport": "1440x960",
     "build": "source",
     "checks": "PASS",
-    "worker": "mocked; no production upload"
+    "worker": "mocked; no production contact"
   },
   {
     "viewport": "1440x960",
     "build": "dist/RECOVERY44.html",
     "checks": "PASS",
-    "worker": "mocked; no production upload"
+    "worker": "mocked; no production contact"
   },
   {
     "viewport": "844x390",
     "build": "source",
     "checks": "PASS",
-    "worker": "mocked; no production upload"
+    "worker": "mocked; no production contact"
   },
   {
     "viewport": "844x390",
     "build": "dist/RECOVERY44.html",
     "checks": "PASS",
-    "worker": "mocked; no production upload"
+    "worker": "mocked; no production contact"
   },
   {
     "viewport": "568x320",
     "build": "source",
     "checks": "PASS",
-    "worker": "mocked; no production upload"
+    "worker": "mocked; no production contact"
   },
   {
     "viewport": "568x320",
     "build": "dist/RECOVERY44.html",
     "checks": "PASS",
-    "worker": "mocked; no production upload"
+    "worker": "mocked; no production contact"
   },
   {
     "viewport": "390x844",
     "build": "source",
     "checks": "PASS",
-    "worker": "mocked; no production upload"
+    "worker": "mocked; no production contact"
   },
   {
     "viewport": "390x844",
     "build": "dist/RECOVERY44.html",
     "checks": "PASS",
-    "worker": "mocked; no production upload"
+    "worker": "mocked; no production contact"
   },
   {
     "viewport": "320x568",
     "build": "source",
     "checks": "PASS",
-    "worker": "mocked; no production upload"
+    "worker": "mocked; no production contact"
   },
   {
     "viewport": "320x568",
     "build": "dist/RECOVERY44.html",
     "checks": "PASS",
-    "worker": "mocked; no production upload"
+    "worker": "mocked; no production contact"
   }
 ]

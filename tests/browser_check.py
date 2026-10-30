@@ -1,3 +1,4 @@
+from ui_helpers import mock_uploads, accept_consent, ENDPOINT
 """Run with Python Playwright and an existing local HTTP server on port 4173."""
 import json, pathlib, re
 from playwright.sync_api import sync_playwright
@@ -9,6 +10,7 @@ with sync_playwright() as p:
  results=[]
  for name,w,h,mobile,reduced in [('desktop',1440,960,False,False),('mobile-landscape',844,390,True,False),('small-landscape-reduced',568,320,True,True)]:
   context=browser.new_context(viewport={'width':w,'height':h},is_mobile=mobile,has_touch=mobile,device_scale_factor=1,reduced_motion='reduce' if reduced else 'no-preference',accept_downloads=True)
+  mock_uploads(context)
   page=context.new_page();errors=[];bad=[]
   page.on('pageerror',lambda e:errors.append(str(e)))
   page.on('response',lambda r:bad.append(r.url) if r.status>=400 else None)
@@ -85,7 +87,7 @@ with sync_playwright() as p:
   downloads=[]
   for option in range(4):
    page.locator(f'[data-choice="{option}"]').click();page.wait_for_selector('#result-card');page.wait_for_timeout(800)
-   with page.expect_download() as item:page.locator('[data-action="download"]').click()
+   with page.expect_download() as item:page.locator('[data-action="download"]').click();accept_consent(page)
    dest=OUT/f'{name}-card-{option}.png';item.value.save_as(dest)
    from PIL import Image
    assert Image.open(dest).size==(1080,1350)

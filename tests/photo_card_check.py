@@ -1,3 +1,4 @@
+from ui_helpers import mock_uploads, accept_consent, ENDPOINT
 """Personal photo cards: run with the local server on port 4173."""
 import hashlib, json, pathlib, tempfile
 from PIL import Image, ImageDraw
@@ -30,9 +31,9 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
     for w,h in [(1440,960),(844,390),(568,320),(390,844),(320,568)]:
         for build in ['', 'dist/RECOVERY44.html']:
             c=browser.new_context(viewport={'width':w,'height':h},reduced_motion='reduce',accept_downloads=True,has_touch=True)
-            page=c.new_page();errors=[];uploads=[]
+            mock_uploads(c);page=c.new_page();errors=[];uploads=[]
             page.on('pageerror',lambda e:errors.append(str(e)))
-            page.on('request',lambda r:uploads.append(r.url) if r.method!='GET' else None)
+            page.on('request',lambda r:uploads.append(r.url) if r.method!='GET' and r.url!=ENDPOINT else None)
             page.goto('http://127.0.0.1:4173/'+build+'#your-recovery');page.locator('[data-choice="0"]').click();ready(page)
             original=fingerprint(page)
             assert page.locator('[data-action="reset-photo"]').is_hidden()
@@ -42,10 +43,10 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
             chooser.value.set_files(tmp/'portrait.png');ready(page)
             assert fingerprint(page)!=original
             assert '내 사진을 적용했습니다' in page.locator('#photo-status').inner_text()
-            page.locator('#photo-y').fill('-100');ready(page);top=pixel(page)
-            page.locator('#photo-y').fill('100');ready(page);bottom=pixel(page)
+            page.locator('#photo-vertical').fill('0');ready(page);top=pixel(page)
+            page.locator('#photo-vertical').fill('100');ready(page);bottom=pixel(page)
             assert top!=bottom and top[0]>top[2] and bottom[2]>bottom[0]
-            with page.expect_download() as d:page.locator('[data-action="download"]').click()
+            with page.expect_download() as d:page.locator('[data-action="download"]').click();accept_consent(page)
             dest=tmp/'card.png';d.value.save_as(dest);png=Image.open(dest)
             assert png.size==(1080,1350) and list(png.getpixel((540,200)))==bottom
             # Frame and lettering remain on the exported card.
@@ -53,7 +54,7 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
             region=png.crop((74,1100,1000,1220))
             assert sum(count for count,color in region.getcolors(region.width*region.height) if min(color[:3])>200)>1000
             page.evaluate('Object.defineProperty(navigator,"canShare",{value:()=>false,configurable:true})')
-            with page.expect_download() as shared:page.locator('[data-action="share"]').click()
+            with page.expect_download() as shared:page.locator('[data-action="share"]').click();accept_consent(page)
             shared.value.save_as(tmp/'shared.png');assert Image.open(tmp/'shared.png').getpixel((540,200))==png.getpixel((540,200))
             # File picker cancellation and failed decoding preserve the previous photo.
             before=fingerprint(page);page.locator('#choose-photo').set_input_files([]);ready(page);assert fingerprint(page)==before
@@ -63,18 +64,18 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
             with page.expect_file_chooser() as chooser:page.locator('[data-action="pick-photo"]').click()
             assert chooser.value.element.get_attribute('capture') is None
             chooser.value.set_files(tmp/'landscape.jpg');ready(page)
-            page.locator('#photo-x').fill('-100');ready(page);left=pixel(page)
-            page.locator('#photo-x').fill('100');ready(page);right=pixel(page);assert left!=right
+            page.locator('#photo-horizontal').fill('0');ready(page);left=pixel(page)
+            page.locator('#photo-horizontal').fill('100');ready(page);right=pixel(page);assert left!=right
             # Phone JPEG orientation is honored before positioning and exporting.
             page.locator('#camera-photo').set_input_files(tmp/'camera-oriented.jpg');ready(page)
-            page.locator('#photo-x').fill('-100');ready(page);left=pixel(page)
-            page.locator('#photo-x').fill('100');ready(page);right=pixel(page)
-            assert left[0]>left[2] and right[2]>right[0]
+            page.locator('#photo-horizontal').fill('0');ready(page);left=pixel(page)
+            page.locator('#photo-horizontal').fill('100');ready(page);right=pixel(page)
+            assert left[2]>left[0] and right[0]>right[2]
             # All four recovery designs accept the user's photo, retained across choices.
             for option in range(4):
                 page.locator('[data-action="choose"]').click();page.locator(f'[data-choice="{option}"]').click();ready(page)
                 assert page.locator('.photo-position-controls').is_visible()
-                with page.expect_download() as d:page.locator('[data-action="download"]').click()
+                with page.expect_download() as d:page.locator('[data-action="download"]').click();accept_consent(page)
                 d.value.save_as(tmp/f'card-{option}.png');assert Image.open(tmp/f'card-{option}.png').size==(1080,1350)
             assert len({hashlib.sha256((tmp/f'card-{i}.png').read_bytes()).digest() for i in range(4)})==4
             page.locator('[data-action="choose"]').click();page.locator('[data-choice="0"]').click();ready(page)
