@@ -81,3 +81,14 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
 .river .field-record,.river .copy,.river .eyebrow,.river .response{color:#fff}
 .river .primary{text-shadow:none}
 #carbon-dialog .nepal-message{font-size:16px;line-height:1.85}
+
+.photo-tools{margin:22px 0 0;padding:18px;border:1px solid var(--line);min-width:0}
+.photo-tools legend{font-size:13px;padding:0 8px;color:#24482d}
+.photo-buttons{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.photo-buttons .text-link{margin:0}
+.photo-position-controls{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+.photo-position-controls[hidden],.photo-buttons [hidden]{display:none}
+.photo-position-controls label{display:grid;gap:10px;min-width:0;font-size:11px;color:#475849}
+.photo-position-controls input{width:100%;min-width:0;min-height:32px;accent-color:#24482d;touch-action:pan-y}
+#photo-status{font-size:12px;line-height:1.7;color:#24482d;margin:14px 0 0}
+.photo-privacy{font-size:10px;line-height:1.7;color:#475849;margin:10px 0 0}
