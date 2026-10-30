@@ -150,12 +150,19 @@
     if(im?.naturalWidth){const view=photoGeometry(personal,im);g.save();g.beginPath();g.rect(0,0,1080,900);g.clip();g.drawImage(im,view.x,view.y,view.w,view.h);g.restore();}
     const grad=g.createLinearGradient(0,0,0,850);grad.addColorStop(0,'#08140f18');grad.addColorStop(.4,'#08140f44');grad.addColorStop(1,'#08140f');g.fillStyle=grad;g.fillRect(0,0,1080,900);
     g.strokeStyle=c.color;g.lineWidth=2;g.strokeRect(45,45,990,1260);g.fillStyle=c.color;g.font='700 24px Recovery, sans-serif';g.fillText('MY RECOVERY',80,105);g.textAlign='right';g.fillText('2026 / 44 YEARS',1000,105);g.textAlign='left';
-    // Align each mark’s vertical center to the justice mark; keep every x coordinate and shape unchanged.
-    const markOffsetY={터전:1,정의:0,연결:-14,전환:16}[c.key];
+    // Place each mark beside the recovery message, between the opening and closing lines.
+    const cardLines=c.short.split('\n');
+    g.save();g.font='700 67px Recovery, sans-serif';
+    const firstLine=g.measureText(cardLines[0]),lastLine=g.measureText(cardLines[cardLines.length-1]);
+    const messageTop=890-(firstLine.actualBoundingBoxAscent??57);
+    const messageBottom=890+(cardLines.length-1)*90+(lastLine.actualBoundingBoxDescent??0);
+    const markCenterY=(messageTop+messageBottom)/2;
+    g.restore();
+    const markOffsetY=markCenterY-({터전:485,정의:486.3,연결:500,전환:470}[c.key]);
     g.save();g.translate(0,markOffsetY);
     g.strokeStyle=c.color;g.lineWidth=3;for(let i=0;i<5;i++){g.beginPath();if(c.key==='터전'){g.moveTo(790+i*30,580);g.lineTo(790+i*30,450-i*15);g.lineTo(765+i*30,490-i*15);}else if(c.key==='정의'){g.moveTo(740,440+i*25);g.bezierCurveTo(850,400+i*30,900,540-i*10,990,460+i*20);}else if(c.key==='연결'){g.arc(840+i*20,500,45,0,Math.PI*2);}else {g.moveTo(760+i*35,570);g.lineTo(760+i*35,450-i*20);}g.stroke();}
     g.restore();
-    g.fillStyle='#f1eee4';g.font='400 30px Recovery, sans-serif';g.fillText('나는',80,790);g.fillStyle=c.color;g.font='700 67px Recovery, sans-serif';c.short.split('\n').forEach((line,i)=>g.fillText(line,80,890+i*90));g.fillStyle='#f1eee4';g.font='400 30px Recovery, sans-serif';g.fillText('을 이어가겠습니다.',80,1055);g.fillStyle='#f1eee4';g.font='900 100px Arial, sans-serif';g.fillText('RECOVERY 44',74,1210);g.font='400 23px Recovery, sans-serif';g.fillStyle='#c0c7b9';g.fillText('기독교환경운동연대 · 함께 걸어온 회복의 시간',80,1260);
+    g.fillStyle='#f1eee4';g.font='400 30px Recovery, sans-serif';g.fillText('나는',80,790);g.fillStyle=c.color;g.font='700 67px Recovery, sans-serif';cardLines.forEach((line,i)=>g.fillText(line,80,890+i*90));g.fillStyle='#f1eee4';g.font='400 30px Recovery, sans-serif';g.fillText('을 이어가겠습니다.',80,1055);g.fillStyle='#f1eee4';g.font='900 100px Arial, sans-serif';g.fillText('RECOVERY 44',74,1210);g.font='400 23px Recovery, sans-serif';g.fillStyle='#c0c7b9';g.fillText('기독교환경운동연대 · 함께 걸어온 회복의 시간',80,1260);
     if(!encode)return;
     try{const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('PNG 생성 실패')),'image/png'));if(run===cardRender&&requestFrame===frame&&canvas.isConnected)cardBlob=blob;}catch{if(run===cardRender)notify('카드를 만들지 못했습니다. 다시 선택한 뒤 시도해주세요.');}
   }
