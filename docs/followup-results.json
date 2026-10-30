@@ -1,0 +1,32 @@
+[
+  {
+    "viewport": "1440x960",
+    "builds": [
+      "source",
+      "standalone"
+    ],
+    "checks": "PASS",
+    "js_errors": [],
+    "failed_requests": []
+  },
+  {
+    "viewport": "390x844",
+    "builds": [
+      "source",
+      "standalone"
+    ],
+    "checks": "PASS",
+    "js_errors": [],
+    "failed_requests": []
+  },
+  {
+    "viewport": "320x568",
+    "builds": [
+      "source",
+      "standalone"
+    ],
+    "checks": "PASS",
+    "js_errors": [],
+    "failed_requests": []
+  }
+]
