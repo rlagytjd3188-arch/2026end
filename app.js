@@ -31,7 +31,7 @@
       case 'calendar': html=`<div class="split"><div>${head(s)}${detail(s)}<a class="primary calendar-apply" href="https://forms.gle/eXWtNmhnSnByQJ318" target="_blank" rel="noopener noreferrer">생태달력 신청하기<span class="sr-only"> (새 창)</span></a></div><figure class="calendar-photo"><img src="${s.image || path(s.photos[0])}" alt="2027 생태달력 실물 사진"></figure></div>`;break;
       case 'photo-gallery': html=`<div class="split"><div>${head(s)}${button('다음 사진 보기','photo-next')}<p class="photo-position" aria-live="polite"></p>${detail(s)}</div>${photo(s)}</div>`;break;
       case 'nepal': html=`<div class="split"><div>${head(s)}${button('탄소배출량 비교 보기','nepal')}${detail(s)}</div>${photo(s)}</div>`;break;
-      case 'river': html=`<img class="full-photo" src="${s.image || path(s.photos[0])}" alt="기후정의행진 사진"><div class="river-content">${head(s)}<svg class="river-lines" viewBox="0 0 900 120" role="img" aria-label="작은 물줄기가 하나의 강으로 연결되는 모습">${[5,25,45,65,85,105].map((y,i)=>`<path d="M0 ${y} C200 ${y} 200 60 430 60 S700 ${i%2?45:75} 900 60"/>`).join('')}</svg><div class="river-stats"><div><strong data-counter="20000">0</strong><small>명을 넘는 시민</small></div><div><strong data-counter="620">0</strong><small>개 시민사회단체</small></div></div>${button('행진 참여 규모 보기','river')}<p class="response" aria-live="polite"></p>${detail(s)}</div>`;break;
+      case 'river': html=`<img class="full-photo" src="${s.image || path(s.photos[0])}" alt="기후정의행진 사진"><div class="river-content"><div class="river-heading">${head(s)}</div><div class="river-action">${button('행진 참여 규모 보기','river')}<svg class="river-lines" viewBox="0 0 900 120" role="img" aria-label="작은 물줄기가 하나의 강으로 연결되는 모습">${[5,25,45,65,85,105].map((y,i)=>`<path d="M0 ${y} C200 ${y} 200 60 430 60 S700 ${i%2?45:75} 900 60"/>`).join('')}</svg><div class="river-stats"><div><strong data-counter="20000">0</strong><small>명을 넘는 시민</small></div><div><strong data-counter="620">0</strong><small>개 시민사회단체</small></div></div><p class="response" aria-live="polite"></p></div>${detail(s)}</div>`;break;
       case 'possibility': html=`<div class="split"><div>${head(s)}${button('다음 사진 보기','photo-next')}<p class="photo-position" aria-live="polite"></p>${detail(s)}</div>${photo(s)}</div>`;break;
       case 'memory': html=`<span class="eyebrow">PART 06 / 2026 활동 기록</span><h2 tabindex="-1">${escape(s.title)}</h2><div class="memory-word">RECOVERY<span class="accent">.</span></div><img class="memory-photo" src="${path(s.photos[0])}" alt="풍천리 주민 연대 현장">${chips(s.labels)}<p class="copy">${escape(s.copy)}</p>${detail(s)}`;break;
       case 'choices': html=`<div class="choices-layout"><div>${head(s)}<span class="eyebrow">YOUR NEXT STEP ↗</span><p class="copy">한 가지 마음을 골라\n나만의 회복 카드를 남겨보세요.</p></div><div class="choices-list">${choices.map((c,i)=>`<button class="choice" data-choice="${i}"><span class="choice-num">0${i+1}</span><span><b>${c.title}</b><small>${c.description}</small></span><span class="choice-arrow" aria-hidden="true">↗</span></button>`).join('')}</div></div>`;break;
@@ -139,9 +139,40 @@
   document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();}}));
   document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||e.altKey||e.ctrlKey||e.metaKey)return;if(e.target.closest('input,textarea,select,.filmstrip'))return;const interactive=e.target.closest('button,a');if(['ArrowRight','ArrowLeft'].includes(e.key)){e.preventDefault();if(e.key==='ArrowRight'&&index<sceneNumber('your-recovery'))show(index+1,{focus:true});else if(e.key==='ArrowLeft')show(index-1,{focus:true});}else if(e.code==='Space'&&!interactive&&index<sceneNumber('your-recovery')){e.preventDefault();show(index+1,{focus:true});}});
   let touch=null;
-  story.addEventListener('touchstart',e=>{if(e.target.closest('button,a,input,label,.filmstrip')||e.touches.length!==1){touch=null;return;}const t=e.touches[0];touch={x:t.clientX,y:t.clientY,rotated:matchMedia('(orientation: portrait) and (max-width: 767px) and (any-pointer: coarse)').matches};},{passive:true});
-  story.addEventListener('touchend',e=>{if(!touch)return;const px=e.changedTouches[0].clientX-touch.x,py=e.changedTouches[0].clientY-touch.y,dx=touch.rotated?py:px,dy=touch.rotated?-px:py;touch=null;if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0&&index<sceneNumber('your-recovery'))show(index+1,{focus:true});if(dx>0)show(index-1,{focus:true});}},{passive:true});
-  story.addEventListener('touchcancel',()=>touch=null,{passive:true});
+  const touchDelta=(t,point)=>{
+    const x=point.clientX-t.x,y=point.clientY-t.y;
+    return t.rotated?{x:y,y:-x}:{x,y};
+  };
+  document.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1||e.target.closest('input,label')){touch=null;return;}
+    const point=e.touches[0],scene=e.target.closest('.scene,dialog');if(!scene)return;
+    touch={x:point.clientX,y:point.clientY,lastY:0,axis:null,scene,
+      noNavigation:!!e.target.closest('dialog,button,a,.filmstrip'),
+      rotated:matchMedia('(orientation: portrait) and (max-width: 767px) and (any-pointer: coarse)').matches};
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!touch||e.touches.length!==1)return;
+    const delta=touchDelta(touch,e.touches[0]);
+    if(!touch.axis){
+      if(Math.abs(delta.y)>8&&Math.abs(delta.y)>Math.abs(delta.x)*1.15)touch.axis='vertical';
+      else if(Math.abs(delta.x)>8&&Math.abs(delta.x)>Math.abs(delta.y)*1.15)touch.axis='horizontal';
+    }
+    if(touch.axis==='vertical'){
+      if(e.cancelable)e.preventDefault();
+      touch.scene.scrollTop-=delta.y-touch.lastY;
+    }else if(touch.axis==='horizontal'&&!touch.noNavigation&&e.cancelable)e.preventDefault();
+    touch.lastY=delta.y;
+  },{passive:false});
+  document.addEventListener('touchend',e=>{
+    if(!touch)return;const gesture=touch;touch=null;
+    if(gesture.axis==='vertical'||gesture.noNavigation)return;
+    const delta=touchDelta(gesture,e.changedTouches[0]);
+    if(Math.abs(delta.x)>65&&Math.abs(delta.x)>Math.abs(delta.y)*1.5){
+      if(delta.x<0&&index<sceneNumber('your-recovery'))show(index+1,{focus:true});
+      if(delta.x>0)show(index-1,{focus:true});
+    }
+  },{passive:true});
+  document.addEventListener('touchcancel',()=>touch=null,{passive:true});
   window.addEventListener('hashchange',()=>{const n=scenes.findIndex(s=>'#'+s.id===(location.hash==='#walking-again'?'#walking':location.hash==='#we-are-trees'?'#forest-voices':location.hash));if(n>=0&&n!==index)show(n,{hash:false});});
   async function boot(){try{const res=await fetch('data/scenes.json');if(!res.ok)throw new Error('기록 응답 오류');scenes=await res.json();$('#chapter-list').innerHTML=['opening','beginning','no-nukes','conversion','nepal','another-world','recovery','your-recovery'].map(sceneNumber).map(i=>`<a href="#${scenes[i].id}" data-chapter="${i}"><span>${i===0?'START':scenes[i].kind==='choices'?'YOU':`PART ${String(scenes[i].part).padStart(2,'0')}`}</span>${i===0?'올해 돌아보기':scenes[i].kind==='choices'?'나의 회복 남기기':parts[scenes[i].part]}</a>`).join('');$('#chapter-list').addEventListener('click',e=>{const a=e.target.closest('a');if(a){e.preventDefault();$('#map-dialog').close();show(+a.dataset.chapter,{focus:true});}});const n=scenes.findIndex(s=>'#'+s.id===(location.hash==='#walking-again'?'#walking':location.hash==='#we-are-trees'?'#forest-voices':location.hash));show(n<0?0:n);}catch{story.innerHTML='<section class="error-panel"><h1>기록을 불러오지 못했습니다.</h1><p>인터넷 연결을 확인한 뒤 새로고침해주세요. 파일을 직접 여셨다면 README의 로컬 서버 실행 방법을 이용해주세요.</p><button class="primary" id="retry">다시 불러오기</button></section>';$('#retry').onclick=boot;$('#previous').disabled=true;$('#next').disabled=true;}}
   boot();

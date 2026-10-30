@@ -137,3 +137,29 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
  .result-actions{margin:18px 0 8px}.photo-tools{padding:12px;margin-top:18px}.photo-position-controls{gap:12px}
  dialog{max-height:calc(100cqh - 24px);padding:24px}dialog h2{font-size:26px}
 }
+
+/* Keep long scenes reachable by touch and expose the march action immediately. */
+.scene{overflow-y:auto;-webkit-overflow-scrolling:touch;scroll-padding-top:80px;scroll-padding-bottom:90px}
+.hero> :not(.hero-image){flex-shrink:0}
+.hero h1{letter-spacing:0;line-height:1.05}
+.river-action>.primary{margin:10px 0 8px}
+.river .response:empty{display:none}
+@media(orientation:landscape) and (max-height:600px) and (any-pointer:coarse), (orientation:portrait) and (max-width:767px) and (any-pointer:coarse){
+ .hero{justify-content:flex-start;padding-top:68px;padding-bottom:68px}
+ .hero h1{font-size:clamp(48px,10cqw,92px);line-height:1.05;letter-spacing:0;margin:10px 0}
+ .hero .eyebrow{font-size:9px;line-height:1.5}
+ .hero .hero-note{font-size:12px;line-height:1.7;margin:8px 0 12px}
+ .hero .hero-bottom{flex-shrink:0}
+ .memory{justify-content:flex-start}
+ .river-content{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);column-gap:26px;align-items:start}
+ .river-heading,.river-action{min-width:0}
+ .river h2{font-size:clamp(28px,4.6cqw,42px);line-height:1.15;margin:10px 0}
+ .river .copy{font-size:12px;line-height:1.7}
+ .river-action>.primary{min-height:44px;margin:0 0 6px;padding:10px 16px;font-size:11px;gap:18px}
+ .river-lines{height:32px;display:block}
+ .river-stats{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin:8px 0}
+ .river-stats strong{font-size:clamp(30px,5cqw,44px)}
+ .river-stats small{font-size:10px;line-height:1.5}
+ .river .response{font-size:11px;line-height:1.7;margin:10px 0 0}
+ .river .field-record{grid-column:1/-1}
+}

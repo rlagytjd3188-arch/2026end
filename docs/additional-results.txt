@@ -1,4 +1,4 @@
-/workspace/2026end/dist/RECOVERY44.html 5803138 bytes
-initial resources [{"name": "05-p23-6.webp", "bytes": 70598}, {"name": "styles.css", "bytes": 33118}, {"name": "logo.jpg", "bytes": 13659}, {"name": "app.js", "bytes": 26438}, {"name": "scenes.json", "bytes": 19987}, {"name": "recovery-regular.woff", "bytes": 59276}, {"name": "recovery-bold.woff", "bytes": 60464}, {"name": "02-p03-0.webp", "bytes": 96802}, {"name": "logo.jpg", "bytes": 0}]
+/workspace/2026end/dist/RECOVERY44.html 5805816 bytes
+initial resources [{"name": "05-p23-6.webp", "bytes": 70598}, {"name": "styles.css", "bytes": 34763}, {"name": "app.js", "bytes": 27471}, {"name": "logo.jpg", "bytes": 13659}, {"name": "recovery-regular.woff", "bytes": 59276}, {"name": "recovery-bold.woff", "bytes": 60464}, {"name": "scenes.json", "bytes": 19987}, {"name": "logo.jpg", "bytes": 0}, {"name": "02-p03-0.webp", "bytes": 96802}, {"name": "logo.jpg", "bytes": 0}]
 trusted tap/swipe, modal focus, share fallback: PASS
 self-contained HTML / card export / zero additional requests: PASS

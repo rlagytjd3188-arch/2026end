@@ -1,0 +1,42 @@
+[
+  {
+    "viewport": "844x390",
+    "build": "source",
+    "checks": "PASS"
+  },
+  {
+    "viewport": "844x390",
+    "build": "dist/RECOVERY44.html",
+    "checks": "PASS"
+  },
+  {
+    "viewport": "568x320",
+    "build": "source",
+    "checks": "PASS"
+  },
+  {
+    "viewport": "568x320",
+    "build": "dist/RECOVERY44.html",
+    "checks": "PASS"
+  },
+  {
+    "viewport": "390x844",
+    "build": "source",
+    "checks": "PASS"
+  },
+  {
+    "viewport": "390x844",
+    "build": "dist/RECOVERY44.html",
+    "checks": "PASS"
+  },
+  {
+    "viewport": "320x568",
+    "build": "source",
+    "checks": "PASS"
+  },
+  {
+    "viewport": "320x568",
+    "build": "dist/RECOVERY44.html",
+    "checks": "PASS"
+  }
+]
