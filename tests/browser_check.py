@@ -7,7 +7,7 @@ scenes=json.loads((ROOT/'data/scenes.json').read_text())
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
  results=[]
- for name,w,h,mobile,reduced in [('desktop',1440,960,False,False),('mobile',390,844,True,False),('small-reduced',320,568,True,True)]:
+ for name,w,h,mobile,reduced in [('desktop',1440,960,False,False),('mobile-landscape',844,390,True,False),('small-landscape-reduced',568,320,True,True)]:
   context=browser.new_context(viewport={'width':w,'height':h},is_mobile=mobile,has_touch=mobile,device_scale_factor=1,reduced_motion='reduce' if reduced else 'no-preference',accept_downloads=True)
   page=context.new_page();errors=[];bad=[]
   page.on('pageerror',lambda e:errors.append(str(e)))

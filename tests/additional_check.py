@@ -6,7 +6,7 @@ subprocess.run([sys.executable,str(ROOT/"scripts/build_standalone.py")],check=Tr
 out=Path('/tmp/recovery-check')
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
- c=b.new_context(viewport={'width':390,'height':844},has_touch=True,is_mobile=True,reduced_motion='reduce');page=c.new_page();page.goto('http://127.0.0.1:4173');page.wait_for_selector('.hero');page.wait_for_timeout(400)
+ c=b.new_context(viewport={'width':844,'height':390},has_touch=True,is_mobile=True,reduced_motion='reduce');page=c.new_page();page.goto('http://127.0.0.1:4173');page.wait_for_selector('.hero');page.wait_for_timeout(400)
  resources=page.evaluate('performance.getEntriesByType("resource").map(r=>({name:r.name.split("/").pop(),bytes:r.transferSize}))');print('initial resources',json.dumps(resources))
  page.tap('[data-action="next"]');page.wait_for_selector('[data-scene="beginning"]')
  # Trusted browser touch swipe via Chrome DevTools.

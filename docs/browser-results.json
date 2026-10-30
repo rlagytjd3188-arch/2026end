@@ -8,7 +8,7 @@
     "checks": "PASS"
   },
   {
-    "viewport": "mobile",
+    "viewport": "mobile-landscape",
     "scenes": 24,
     "cards": 4,
     "console_errors": [],
@@ -16,7 +16,7 @@
     "checks": "PASS"
   },
   {
-    "viewport": "small-reduced",
+    "viewport": "small-landscape-reduced",
     "scenes": 24,
     "cards": 4,
     "console_errors": [],

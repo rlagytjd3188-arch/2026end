@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
     landscape.save(tmp/'landscape.jpg',quality=95)
     (tmp/'broken.jpg').write_bytes(b'not a valid image')
     browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);results=[]
-    for w,h in [(1440,960),(390,844),(320,568)]:
+    for w,h in [(1440,960),(844,390),(568,320),(390,844),(320,568)]:
         for build in ['', 'dist/RECOVERY44.html']:
             c=browser.new_context(viewport={'width':w,'height':h},reduced_motion='reduce',accept_downloads=True,has_touch=True)
             page=c.new_page();errors=[];uploads=[]
