@@ -169,6 +169,26 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
  .river .response{font-size:11px;line-height:1.7;margin:10px 0 0}
  .river .field-record{grid-column:1/-1}
 }
+
+.photo-position-controls{grid-template-columns:minmax(0,1fr) minmax(82px,.7fr);gap:12px}
+.photo-coordinate-help{grid-column:1/-1;font-size:11px;line-height:1.7;color:#475849;margin:0}
+.photo-coordinate-pad{position:relative;height:130px;min-width:0;border:1px solid #24482d66;border-radius:4px;background-color:#e8eade;background-image:linear-gradient(#24482d18 1px,transparent 1px),linear-gradient(90deg,#24482d18 1px,transparent 1px);background-size:25% 25%;touch-action:none;user-select:none;cursor:crosshair}
+.photo-coordinate-pad::before,.photo-coordinate-pad::after{content:'';position:absolute;pointer-events:none;background:#24482d70}
+.photo-coordinate-pad::before{left:0;right:0;top:50%;height:1px}
+.photo-coordinate-pad::after{top:0;bottom:0;left:50%;width:1px}
+.photo-coordinate-pad:focus-visible{outline:3px solid #24482d;outline-offset:3px}
+.photo-coordinate-dot{position:absolute;z-index:2;left:50%;top:50%;width:16px;height:16px;background:#24482d;border:3px solid #cefa73;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 1px 6px #10271b55;pointer-events:none}
+.photo-coordinate-pad>span:not(.photo-coordinate-dot){position:absolute;z-index:1;font:10px Arial,sans-serif;color:#24482d;pointer-events:none}
+.coordinate-north{top:5px;left:calc(50% + 6px)}.coordinate-south{bottom:5px;left:calc(50% + 6px)}.coordinate-east{right:5px;top:calc(50% + 5px)}.coordinate-west{left:5px;top:calc(50% + 5px)}
+.photo-coordinate-values{display:grid;gap:6px;min-width:0;align-content:start}
+.photo-coordinate-values label{gap:3px}
+.photo-coordinate-values input{font:12px Recovery,sans-serif;color:#10271b;background:#fff8;border:1px solid #24482d55;padding:5px 8px;min-height:32px;touch-action:auto}
+#photo-coordinate-output{font:11px monospace;color:#24482d}
+.photo-coordinate-values .text-link{margin:0;justify-self:start;min-height:36px;padding:6px 0;font-size:11px}
+@media(orientation:landscape) and (max-height:600px) and (any-pointer:coarse), (orientation:portrait) and (max-width:767px) and (any-pointer:coarse){
+ .result-card{width:min(100%,200px,calc(80cqh - 120px));max-width:none;height:auto}
+ .result-layout>div:last-child{top:0}
+}
 </style>
 
 </head>
@@ -222,7 +242,7 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
       case 'possibility': html=`<div class="split"><div>${head(s)}${button('다음 사진 보기','photo-next')}<p class="photo-position" aria-live="polite"></p>${detail(s)}</div>${photo(s)}</div>`;break;
       case 'memory': html=`<span class="eyebrow">PART 06 / 2026 활동 기록</span><h2 tabindex="-1">${escape(s.title)}</h2><div class="memory-word">RECOVERY<span class="accent">.</span></div><img class="memory-photo" src="${path(s.photos[0])}" alt="풍천리 주민 연대 현장">${chips(s.labels)}<p class="copy">${escape(s.copy)}</p>${detail(s)}`;break;
       case 'choices': html=`<div class="choices-layout"><div>${head(s)}<span class="eyebrow">YOUR NEXT STEP ↗</span><p class="copy">한 가지 마음을 골라\n나만의 회복 카드를 남겨보세요.</p></div><div class="choices-list">${choices.map((c,i)=>`<button class="choice" data-choice="${i}"><span class="choice-num">0${i+1}</span><span><b>${c.title}</b><small>${c.description}</small></span><span class="choice-arrow" aria-hidden="true">↗</span></button>`).join('')}</div></div>`;break;
-      case 'result': html=`<div class="result-layout"><div>${head(s)}<fieldset class="photo-tools"><legend>내 사진으로 회복 카드 만들기</legend><div class="photo-buttons">${button('사진 찍기','camera','secondary')}${button('사진 선택하기','pick-photo','secondary')}${button('기본 사진으로 돌아가기','reset-photo','text-link')}</div><input type="file" id="camera-photo" accept="image/*" capture="environment" hidden><input type="file" id="choose-photo" accept="image/*" hidden><div class="photo-position-controls" hidden><label>가로 위치<input type="range" id="photo-x" min="0" max="100" value="50"></label><label>세로 위치<input type="range" id="photo-y" min="0" max="100" value="35"></label></div><p id="photo-status" role="status">기본 사진을 사용하고 있습니다.</p><p class="photo-privacy">사진은 이 기기에서만 사용하며 서버에 전송하지 않습니다.</p></fieldset><div class="result-actions">${button('나의 회복 PNG 저장','download')}${button('카드 공유하기','share','secondary')}</div>${button('다른 회복 선택하기','choose','text-link')}${button('처음부터 다시 걷기','restart','text-link')}<p class="source">기독교환경운동연대 44주년 · RECOVERY 44<br>선택과 카드 이미지는 서버로 전송되지 않습니다.</p></div><div><canvas class="result-card" id="result-card" width="1080" height="1350" role="img" aria-label="선택한 회복의 결과 카드"></canvas><p class="result-caption">MY RECOVERY · 2026<br>당신의 마음이 다음 회복의 시작입니다.</p></div></div>`;break;
+      case 'result': html=`<div class="result-layout"><div>${head(s)}<fieldset class="photo-tools"><legend>내 사진으로 회복 카드 만들기</legend><div class="photo-buttons">${button('사진 찍기','camera','secondary')}${button('사진 선택하기','pick-photo','secondary')}${button('기본 사진으로 돌아가기','reset-photo','text-link')}</div><input type="file" id="camera-photo" accept="image/*" capture="environment" hidden><input type="file" id="choose-photo" accept="image/*" hidden><div class="photo-position-controls" hidden><p id="photo-coordinate-help" class="photo-coordinate-help">점을 움직이거나 X·Y 값을 입력하세요. 가운데는 (0, 0)입니다.</p><div id="photo-coordinate-pad" class="photo-coordinate-pad" role="group" aria-roledescription="2차원 위치 조절" aria-label="사진 위치 X 0, Y 0" aria-describedby="photo-coordinate-help" tabindex="0"><span class="coordinate-north" aria-hidden="true">+Y</span><span class="coordinate-east" aria-hidden="true">+X</span><span class="coordinate-south" aria-hidden="true">−Y</span><span class="coordinate-west" aria-hidden="true">−X</span><span class="photo-coordinate-dot" aria-hidden="true"></span></div><div class="photo-coordinate-values"><label for="photo-x">X · 좌우<input type="number" id="photo-x" min="-100" max="100" step="1" value="0" inputmode="numeric"></label><label for="photo-y">Y · 상하<input type="number" id="photo-y" min="-100" max="100" step="1" value="0" inputmode="numeric"></label><output id="photo-coordinate-output" aria-live="off">(0, 0)</output>${button('가운데로','center-photo','text-link')}</div><p class="photo-coordinate-help">범위 −100~100 · +X는 오른쪽, +Y는 위쪽으로 이동합니다. 사진이 프레임을 채우는 범위에서 조절됩니다.</p></div><p id="photo-status" role="status">기본 사진을 사용하고 있습니다.</p><p class="photo-privacy">사진은 이 기기에서만 사용하며 서버에 전송하지 않습니다.</p></fieldset><div class="result-actions">${button('나의 회복 PNG 저장','download')}${button('카드 공유하기','share','secondary')}</div>${button('다른 회복 선택하기','choose','text-link')}${button('처음부터 다시 걷기','restart','text-link')}<p class="source">기독교환경운동연대 44주년 · RECOVERY 44<br>선택과 카드 이미지는 서버로 전송되지 않습니다.</p></div><div><canvas class="result-card" id="result-card" width="1080" height="1350" role="img" aria-label="선택한 회복의 결과 카드"></canvas><p class="result-caption">MY RECOVERY · 2026<br>당신의 마음이 다음 회복의 시작입니다.</p></div></div>`;break;
       default:html=`<div class="split"><div class="text-block">${head(s)}${['switch','values','gallery'].includes(s.kind)?chips(s.labels):''}${s.kind==='values'?`<p class="response" aria-live="polite">${escape(s.responses[0])}</p>`:''}${detail(s)}</div>${photo(s,0,s.id==='research'?'photo-stack':'')}</div>`;
     }
     return html;
@@ -263,7 +283,14 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
     const controls=$('.photo-position-controls'),status=$('#photo-status');
     if(!status)return;
     controls.hidden=!customPhoto;
-    if(customPhoto){$('#photo-x').value=customPhoto.x*100;$('#photo-y').value=customPhoto.y*100;}
+    if(customPhoto){
+      const x=Math.round((.5-customPhoto.x)*200),y=Math.round((customPhoto.y-.5)*200);
+      $('#photo-x').value=x;$('#photo-y').value=y;
+      $('#photo-coordinate-output').textContent=`(${x}, ${y})`;
+      const pad=$('#photo-coordinate-pad');pad.setAttribute('aria-label',`사진 위치 X ${x}, Y ${y}`);
+      $('.photo-coordinate-dot',pad).style.left=`${(x+100)/2}%`;
+      $('.photo-coordinate-dot',pad).style.top=`${(100-y)/2}%`;
+    }
     $('[data-action="reset-photo"]').hidden=!customPhoto&&!photoLoading;
     status.textContent=photoLoading?'사진을 불러오고 있습니다.':customPhoto?'내 사진을 적용했습니다. 위치를 조절한 뒤 PNG로 저장하세요.':'기본 사진을 사용하고 있습니다.';
     story.querySelectorAll('[data-action="download"],[data-action="share"]').forEach(b=>b.disabled=photoLoading||!!cardTask);
@@ -282,7 +309,7 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
       image.src=url;await image.decode();
       if(request!==photoRequest){URL.revokeObjectURL(url);return;}
       if(customPhoto)URL.revokeObjectURL(customPhoto.url);
-      customPhoto={image,url,x:.5,y:.35};photoLoading=false;cardBlob=null;
+      customPhoto={image,url,x:.5,y:.5};photoLoading=false;cardBlob=null;
       if($('#result-card'))await drawCard();
     }catch{
       URL.revokeObjectURL(url);
@@ -310,11 +337,41 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
   async function share(){try{const blob=await getCard();const file=new File([blob],`RECOVERY44_${chosen.key}.png`,{type:'image/png'});if(navigator.canShare?.({files:[file]})&&navigator.share){await navigator.share({files:[file],title:'MY RECOVERY · 2026'});}else {await download();notify('이 브라우저에서는 파일 공유 대신 PNG 저장을 제공합니다.');}}catch(e){if(e.name!=='AbortError')notify('공유하지 못했습니다. PNG 저장을 이용해주세요.');}}
   story.addEventListener('change',e=>{
     if(['camera-photo','choose-photo'].includes(e.target.id)){const file=e.target.files?.[0];e.target.value='';usePhoto(file);}
+    if(['photo-x','photo-y'].includes(e.target.id))updatePhotoControls();
   });
   story.addEventListener('input',e=>{
-    if(customPhoto&&['photo-x','photo-y'].includes(e.target.id)){customPhoto[e.target.id==='photo-x'?'x':'y']=+e.target.value/100;drawCard();}
+    if(customPhoto&&['photo-x','photo-y'].includes(e.target.id)&&e.target.value!==''&&!e.target.validity.badInput){setPhotoCoordinates(+$('#photo-x').value,+$('#photo-y').value);}
   });
-  const actions={camera:()=>$('#camera-photo').click(),'pick-photo':()=>$('#choose-photo').click(),'reset-photo':()=>{clearPhoto();drawCard();},next:()=>show(index+1,{focus:true}),churches:()=>churches(),'photo-next':()=>nextPhoto(),nepal:()=>nepal(),river:()=>river(),download,share,choose:()=>show(sceneNumber('your-recovery'),{focus:true}),restart:()=>{clearPhoto();cardRender++;chosen=null;cardBlob=null;state.clear();show(0,{focus:true});}};
+  function setPhotoCoordinates(x,y){
+    if(!customPhoto||!Number.isFinite(x)||!Number.isFinite(y))return;
+    x=Math.max(-100,Math.min(100,Math.round(x)));y=Math.max(-100,Math.min(100,Math.round(y)));
+    customPhoto.x=.5-x/200;customPhoto.y=.5+y/200;drawCard();
+  }
+  let coordinatePointer=null;
+  function positionFromPointer(e){
+    const pad=$('#photo-coordinate-pad');if(!pad)return;
+    const r=pad.getBoundingClientRect();
+    const rotated=matchMedia('(orientation: portrait) and (max-width: 767px) and (any-pointer: coarse)').matches;
+    const x=rotated?(e.clientY-r.top)/r.height:(e.clientX-r.left)/r.width;
+    const y=rotated?(r.right-e.clientX)/r.width:(e.clientY-r.top)/r.height;
+    setPhotoCoordinates(x*200-100,100-y*200);
+  }
+  story.addEventListener('pointerdown',e=>{
+    const pad=e.target.closest('#photo-coordinate-pad');
+    if(!pad||!customPhoto||e.button!==0||!e.isPrimary)return;
+    e.preventDefault();coordinatePointer=e.pointerId;pad.setPointerCapture(e.pointerId);pad.focus({preventScroll:true});positionFromPointer(e);
+  });
+  story.addEventListener('pointermove',e=>{if(e.pointerId===coordinatePointer){e.preventDefault();positionFromPointer(e);}});
+  for(const event of ['pointerup','pointercancel','lostpointercapture'])story.addEventListener(event,e=>{if(e.pointerId===coordinatePointer)coordinatePointer=null;});
+  story.addEventListener('keydown',e=>{
+    if(!e.target.closest('#photo-coordinate-pad')||!customPhoto)return;
+    let x=Math.round((.5-customPhoto.x)*200),y=Math.round((customPhoto.y-.5)*200),step=e.shiftKey?10:1;
+    if(e.key==='ArrowLeft')x-=step;else if(e.key==='ArrowRight')x+=step;
+    else if(e.key==='ArrowUp')y+=step;else if(e.key==='ArrowDown')y-=step;
+    else if(e.key==='Home'){x=0;y=0;}else return;
+    e.preventDefault();e.stopPropagation();setPhotoCoordinates(x,y);
+  });
+  const actions={'center-photo':()=>setPhotoCoordinates(0,0),camera:()=>$('#camera-photo').click(),'pick-photo':()=>$('#choose-photo').click(),'reset-photo':()=>{clearPhoto();drawCard();},next:()=>show(index+1,{focus:true}),churches:()=>churches(),'photo-next':()=>nextPhoto(),nepal:()=>nepal(),river:()=>river(),download,share,choose:()=>show(sceneNumber('your-recovery'),{focus:true}),restart:()=>{clearPhoto();cardRender++;chosen=null;cardBlob=null;state.clear();show(0,{focus:true});}};
   story.addEventListener('click',e=>{const target=e.target.closest('button');if(!target)return;if(target.dataset.action)actions[target.dataset.action]?.();if(target.dataset.option!==undefined)selectOption(+target.dataset.option);if(target.dataset.choice!==undefined){chosen=choices[+target.dataset.choice];show(sceneNumber('my-recovery'),{focus:true});}});
   story.addEventListener('error',e=>{if(e.target.tagName==='IMG'){e.target.classList.add('photo-failed');e.target.alt='이미지를 불러올 수 없습니다. '+e.target.alt;}},true);
   $('#previous').onclick=()=>show(index-1,{focus:true});$('#next').onclick=()=>show(index+1,{focus:true});
@@ -331,7 +388,7 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
     return t.rotated?{x:y,y:-x}:{x,y};
   };
   document.addEventListener('touchstart',e=>{
-    if(e.touches.length!==1||e.target.closest('input,label')){touch=null;return;}
+    if(e.touches.length!==1||e.target.closest('input,label,#photo-coordinate-pad')){touch=null;return;}
     const point=e.touches[0],scene=e.target.closest('.scene,dialog');if(!scene)return;
     touch={x:point.clientX,y:point.clientY,lastY:0,axis:null,scene,
       noNavigation:!!e.target.closest('dialog,button,a,.filmstrip'),
