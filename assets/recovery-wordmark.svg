@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600.846 84" width="600.846" height="84">
+<title>RECOVERY.</title>
+<desc>Fixed vector lettering with separate non-overlapping letter outlines, drawn from Liberation Sans Bold.</desc>
+<metadata>Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Liberation Fonts
+Source: https://github.com/liberationfonts
+
+Files: *
+Copyright:
+ Digitized data copyright (c) 2010 Google Corporation with Reserved Font Arimo, Tinos and Cousine.
+ Copyright (c) 2012 Red Hat, Inc. with Reserved Font Name Liberation.
+License: SIL-OFL-1.1
+ This Font Software is licensed under the SIL Open Font License,
+ Version 1.1.
+ .
+ This license is copied below, and is also available with a FAQ at:
+ http://scripts.sil.org/OFL
+ .
+ SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+ .
+ PREAMBLE The goals of the Open Font License (OFL) are to stimulate
+ worldwide development of collaborative font projects, to support the font
+ creation efforts of academic and linguistic communities, and to provide
+ a free and open framework in which fonts may be shared and improved in
+ partnership with others.
+ .
+ The OFL allows the licensed fonts to be used, studied, modified and
+ redistributed freely as long as they are not sold by themselves.
+ The fonts, including any derivative works, can be bundled, embedded,
+ redistributed and/or sold with any software provided that any reserved
+ names are not used by derivative works.  The fonts and derivatives,
+ however, cannot be released under any other type of license.  The
+ requirement for fonts to remain under this license does not apply to
+ any document created using the fonts or their derivatives.
+ .
+ .
+ .
+ DEFINITIONS
+ "Font Software" refers to the set of files released by the Copyright
+ Holder(s) under this license and clearly marked as such.
+ This may include source files, build scripts and documentation.
+ .
+ "Reserved Font Name" refers to any names specified as such after the
+ copyright statement(s).
+ .
+ "Original Version" refers to the collection of Font Software components
+ as distributed by the Copyright Holder(s).
+ .
+ "Modified Version" refers to any derivative made by adding to, deleting,
+ or substituting ? in part or in whole ?
+ any of the components of the Original Version, by changing formats or
+ by porting the Font Software to a new environment.
+ .
+ "Author" refers to any designer, engineer, programmer, technical writer
+ or other person who contributed to the Font Software.
+ .
+ .
+ PERMISSION &amp; CONDITIONS
+ .
+ Permission is hereby granted, free of charge, to any person obtaining a
+ copy of the Font Software, to use, study, copy, merge, embed, modify,
+ redistribute, and sell modified and unmodified copies of the Font
+ Software, subject to the following conditions:
+ .
+ 1) Neither the Font Software nor any of its individual components,in
+    Original or Modified Versions, may be sold by itself.
+ .
+ 2) Original or Modified Versions of the Font Software may be bundled,
+    redistributed and/or sold with any software, provided that each copy
+    contains the above copyright notice and this license. These can be
+    included either as stand-alone text files, human-readable headers or
+    in the appropriate machine-readable metadata fields within text or
+    binary files as long as those fields can be easily viewed by the user.
+ .
+ 3) No Modified Version of the Font Software may use the Reserved Font
+    Name(s) unless explicit written permission is granted by the
+    corresponding Copyright Holder. This restriction only applies to the
+    primary font name as presented to the users.
+ .
+ 4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+    Software shall not be used to promote, endorse or advertise any
+    Modified Version, except to acknowledge the contribution(s) of the
+    Copyright Holder(s) and the Author(s) or with their explicit written
+    permission.
+ .
+ 5) The Font Software, modified or unmodified, in part or in whole, must
+    be distributed entirely under this license, and must not be distributed
+    under any other license. The requirement for fonts to remain under
+    this license does not apply to any document created using the Font
+    Software.
+ .
+ .
+ .
+ TERMINATION
+ This license becomes null and void if any of the above conditions are not met.
+ .
+ .
+ .
+ DISCLAIMER
+ THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+ OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT.  IN NO EVENT SHALL THE
+ COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM OTHER
+ DEALINGS IN THE FONT SOFTWARE.
+ .
+
+Files: debian/*
+Copyright:
+ 2008 Alan Baghumian &lt;alan@technotux.org&gt;
+ 2008-2018 Holger Levsen &lt;holger@debian.org&gt;
+ 2009-2012 Christian Perrier &lt;bubulle@debian.org&gt;
+ 2011-2023 Fabian Greffrath &lt;fabian@debian.org&gt;
+ 2018 Rene Engelhard &lt;rene@debian.org&gt;
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see &lt;https://www.gnu.org/licenses/&gt;
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+</metadata>
+<path data-letter="R" fill="#f1eee4" d="M49.265625 78.0 33.298828125 51.876953125H16.404296875V78.0H2.0V9.201171875H36.375Q48.6796875 9.201171875 55.369140625 14.4990234375Q62.05859375 19.796875 62.05859375 29.708984375Q62.05859375 36.935546875 57.95703125 42.1845703125Q53.85546875 47.43359375 46.873046875 49.09375L65.4765625 78.0ZM47.556640625 30.294921875Q47.556640625 20.3828125 34.861328125 20.3828125H16.404296875V40.6953125H35.251953125Q41.306640625 40.6953125 44.431640625 37.9609375Q47.556640625 35.2265625 47.556640625 30.294921875Z"/>
+<path data-letter="E" fill="#f1eee4" d="M75.4765625 78.0V9.201171875H129.578125V20.333984375H89.880859375V37.619140625H126.599609375V48.751953125H89.880859375V66.8671875H131.580078125V78.0Z"/>
+<path data-letter="C" fill="none" stroke="#f1eee4" stroke-width="1" d="M176.296875 67.6484375Q189.333984375 67.6484375 194.412109375 54.5625L206.9609375 59.298828125Q202.908203125 69.259765625 195.0712890625 74.1181640625Q187.234375 78.9765625 176.296875 78.9765625Q159.6953125 78.9765625 150.6376953125 69.5771484375Q141.580078125 60.177734375 141.580078125 43.283203125Q141.580078125 26.33984375 150.3203125 17.2578125Q159.060546875 8.17578125 175.662109375 8.17578125Q187.771484375 8.17578125 195.388671875 13.0341796875Q203.005859375 17.892578125 206.08203125 27.31640625L193.38671875 30.783203125Q191.775390625 25.607421875 187.0634765625 22.5556640625Q182.3515625 19.50390625 175.955078125 19.50390625Q166.189453125 19.50390625 161.1357421875 25.55859375Q156.08203125 31.61328125 156.08203125 43.283203125Q156.08203125 55.1484375 161.2822265625 61.3984375Q166.482421875 67.6484375 176.296875 67.6484375Z"/>
+<path data-letter="O" fill="none" stroke="#f1eee4" stroke-width="1" d="M286.443359375 43.283203125Q286.443359375 54.025390625 282.1953125 62.1796875Q277.947265625 70.333984375 270.037109375 74.6552734375Q262.126953125 78.9765625 251.580078125 78.9765625Q235.369140625 78.9765625 226.1650390625 69.4306640625Q216.9609375 59.884765625 216.9609375 43.283203125Q216.9609375 26.73046875 226.140625 17.453125Q235.3203125 8.17578125 251.677734375 8.17578125Q268.03515625 8.17578125 277.2392578125 17.55078125Q286.443359375 26.92578125 286.443359375 43.283203125ZM271.74609375 43.283203125Q271.74609375 32.150390625 266.47265625 25.8271484375Q261.19921875 19.50390625 251.677734375 19.50390625Q242.009765625 19.50390625 236.736328125 25.7783203125Q231.462890625 32.052734375 231.462890625 43.283203125Q231.462890625 54.611328125 236.8583984375 61.1298828125Q242.25390625 67.6484375 251.580078125 67.6484375Q261.248046875 67.6484375 266.4970703125 61.30078125Q271.74609375 54.953125 271.74609375 43.283203125Z"/>
+<path data-letter="V" fill="none" stroke="#f1eee4" stroke-width="1" d="M336.482421875 78.0H321.8828125L296.443359375 9.201171875H311.482421875L325.642578125 53.390625Q326.9609375 57.6875 329.255859375 66.37890625L330.28125 62.1796875L332.771484375 53.390625L346.8828125 9.201171875H361.775390625Z"/>
+<path data-letter="E" fill="none" stroke="#f1eee4" stroke-width="1" d="M371.775390625 78.0V9.201171875H425.876953125V20.333984375H386.1796875V37.619140625H422.8984375V48.751953125H386.1796875V66.8671875H427.87890625V78.0Z"/>
+<path data-letter="R" fill="none" stroke="#f1eee4" stroke-width="1" d="M485.14453125 78.0 469.177734375 51.876953125H452.283203125V78.0H437.87890625V9.201171875H472.25390625Q484.55859375 9.201171875 491.248046875 14.4990234375Q497.9375 19.796875 497.9375 29.708984375Q497.9375 36.935546875 493.8359375 42.1845703125Q489.734375 47.43359375 482.751953125 49.09375L501.35546875 78.0ZM483.435546875 30.294921875Q483.435546875 20.3828125 470.740234375 20.3828125H452.283203125V40.6953125H471.130859375Q477.185546875 40.6953125 480.310546875 37.9609375Q483.435546875 35.2265625 483.435546875 30.294921875Z"/>
+<path data-letter="Y" fill="none" stroke="#f1eee4" stroke-width="1" d="M550.22265625 49.77734375V78.0H535.8671875V49.77734375L511.35546875 9.201171875H526.443359375L542.947265625 38.302734375L559.646484375 9.201171875H574.734375Z"/>
+<path data-letter="." fill="#cefa73" d="M584.734375 78.0V63.107421875H598.845703125V78.0Z"/>
+</svg>

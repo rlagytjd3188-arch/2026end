@@ -34,14 +34,41 @@ with sync_playwright() as p:
                     : {left:r.left,right:r.right,top:r.top,bottom:r.bottom};
             };''')
             visit('opening')
-            glyphs = page.locator('.hero-glyph')
-            assert glyphs.count() == 9
             assert page.locator('.hero h1').get_attribute('aria-label') == 'RECOVERY'
-            boxes = glyphs.evaluate_all('(es) => es.map(logicalRect)')
-            assert all(boxes[i+1]['left'] - boxes[i]['right'] >= 1 for i in range(8)), boxes
-            assert boxes[0]['left'] >= 0 and boxes[-1]['right'] <= max(w, h), boxes
+            # Inspect painted pixels rather than font advance boxes: all 9 shapes
+            # must have clear columns between them, including V/E/R/Y.
+            lettering = page.locator('.hero-wordmark').evaluate('''async image => {
+                await image.decode();
+                const canvas = document.createElement('canvas');
+                canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
+                const ctx = canvas.getContext('2d');ctx.drawImage(image,0,0);
+                const pixels = ctx.getImageData(0,0,canvas.width,canvas.height).data;
+                const ranges=[];let start=null;
+                for(let x=0;x<=canvas.width;x++){
+                    let painted=false;
+                    for(let y=0;y<canvas.height && x<canvas.width;y++)
+                        if(pixels[(y*canvas.width+x)*4+3]>20){painted=true;break;}
+                    if(painted && start===null)start=x;
+                    if(!painted && start!==null){ranges.push([start,x]);start=null;}
+                }
+                return {ranges,box:logicalRect(image)};
+            }''')
+            ranges = lettering['ranges']
+            assert len(ranges) == 9, ranges
+            assert all(ranges[i+1][0] - ranges[i][1] >= 8 for i in range(8)), ranges
+            assert lettering['box']['left'] >= 0 and lettering['box']['right'] <= max(w, h)
             if not build:
                 page.screenshot(path=str(OUT / f'opening-{w}x{h}.png'))
+
+            visit('calendar')
+            button = page.locator('.calendar-apply')
+            assert button.get_attribute('href') == 'https://forms.gle/eXWtNmhnSnByQJ318'
+            assert button.get_attribute('target') == '_blank'
+            assert page.evaluate('''() => {
+                const button=document.querySelector('.calendar-apply'),record=document.querySelector('.field-record');
+                return Boolean(button.compareDocumentPosition(record)&Node.DOCUMENT_POSITION_FOLLOWING)
+                    && logicalRect(button).bottom <= logicalRect(record).top;
+            }''')
 
             visit('daily-worship')
             buttons = page.locator('.switches .chip')
@@ -81,9 +108,12 @@ with sync_playwright() as p:
             visit('river')
             record = page.locator('.river .field-record')
             css = record.evaluate('''e => ({background:getComputedStyle(e).backgroundColor,
+                border:getComputedStyle(e).borderTopWidth,boxShadow:getComputedStyle(e).boxShadow,
+                shadow:getComputedStyle(e.querySelector('p')).textShadow,
                 color:getComputedStyle(e.querySelector('p')).color,
                 size:parseFloat(getComputedStyle(e.querySelector('p')).fontSize)})''')
-            assert css['background'] == 'rgba(8, 20, 15, 0.94)', css
+            assert css['background'] == 'rgba(0, 0, 0, 0)' and css['border'] == '0px', css
+            assert css['boxShadow'] == 'none' and css['shadow'] != 'none', css
             assert css['color'] == 'rgb(248, 246, 237)' and css['size'] >= 14, css
             page.locator('.scene').evaluate('(e)=>e.scrollTop=e.scrollHeight')
             bounds = page.evaluate('''() => ({text:logicalRect(document.querySelector('.field-record p')),

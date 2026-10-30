@@ -204,17 +204,17 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
 .result-card.photo-editable:active{cursor:grabbing}
 .result-card.photo-editable:focus-visible{outline:3px solid #24482d;outline-offset:4px}
 
-/* Individual glyph boxes prevent device font kerning from overlapping VERY. */
-.hero h1{display:flex;align-items:baseline;gap:.03em;width:max-content;max-width:100%;font-size:clamp(60px,13cqw,220px);letter-spacing:0;font-kerning:none;font-variant-ligatures:none}
-.hero h1 .hero-glyph{display:block;flex:0 0 auto;letter-spacing:0;font-kerning:none}
+/* Vector letter shapes and spacing are independent of mobile font rendering. */
+.hero h1{display:block;width:6.2em;max-width:100%;padding:.1em 0;font-size:clamp(60px,13cqw,220px);letter-spacing:0;line-height:0}
+.hero-wordmark{display:block;width:100%;height:auto}
 [data-scene="daily-worship"] .switches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:stretch}
 [data-scene="daily-worship"] .chip{min-width:0;padding:10px 6px;white-space:normal;word-break:keep-all;overflow-wrap:anywhere;font-size:clamp(10px,1.2cqw,12px)}
 .nepal .visual{width:100%;max-width:520px;justify-self:center;align-self:start}
 .nepal .visual>img{width:100%;height:auto;max-height:none;min-height:0;object-fit:contain;background:transparent;filter:none}
-.river .field-record{max-width:none;padding:22px 24px;background:#08140ff0;border:1px solid #f1eee460;border-radius:6px;text-shadow:none;box-shadow:0 8px 24px #0003}
+.river .field-record{max-width:none;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;text-shadow:0 1px 2px #000,0 2px 6px #000,0 0 14px #000}
 .river .field-record .record-label{color:#cefa73;font-weight:700;font-size:12px;letter-spacing:.08em}
 .river .field-record p{color:#f8f6ed;font-size:clamp(14px,1.3cqw,17px);line-height:1.95}
 @media(orientation:landscape) and (max-height:600px) and (any-pointer:coarse), (orientation:portrait) and (max-width:767px) and (any-pointer:coarse){
  .hero h1{font-size:clamp(48px,10cqw,92px)}
- .river .field-record{padding:16px 18px;margin-top:20px}
+ .river .field-record{margin-top:20px}
 }
