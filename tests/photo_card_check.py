@@ -17,6 +17,13 @@ def pixel(page):
     return page.locator('#result-card').evaluate('(c)=>Array.from(c.getContext("2d").getImageData(540,200,1,1).data)')
 
 
+def pan_to_edge(page,direction):
+    page.locator('#result-card').focus()
+    page.keyboard.press('Home');ready(page)
+    for _ in range(20):page.keyboard.press('Shift+'+direction)
+    ready(page)
+
+
 with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
     tmp=pathlib.Path(tmp)
     portrait=Image.new('RGB',(800,1600));draw=ImageDraw.Draw(portrait)
@@ -43,8 +50,8 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
             chooser.value.set_files(tmp/'portrait.png');ready(page)
             assert fingerprint(page)!=original
             assert '내 사진을 적용했습니다' in page.locator('#photo-status').inner_text()
-            page.locator('#photo-vertical').fill('0');ready(page);top=pixel(page)
-            page.locator('#photo-vertical').fill('100');ready(page);bottom=pixel(page)
+            pan_to_edge(page,'ArrowDown');top=pixel(page)
+            pan_to_edge(page,'ArrowUp');bottom=pixel(page)
             assert top!=bottom and top[0]>top[2] and bottom[2]>bottom[0]
             with page.expect_download() as d:page.locator('[data-action="download"]').click();accept_consent(page)
             dest=tmp/'card.png';d.value.save_as(dest);png=Image.open(dest)
@@ -64,12 +71,12 @@ with tempfile.TemporaryDirectory() as tmp, sync_playwright() as p:
             with page.expect_file_chooser() as chooser:page.locator('[data-action="pick-photo"]').click()
             assert chooser.value.element.get_attribute('capture') is None
             chooser.value.set_files(tmp/'landscape.jpg');ready(page)
-            page.locator('#photo-horizontal').fill('0');ready(page);left=pixel(page)
-            page.locator('#photo-horizontal').fill('100');ready(page);right=pixel(page);assert left!=right
+            pan_to_edge(page,'ArrowRight');left=pixel(page)
+            pan_to_edge(page,'ArrowLeft');right=pixel(page);assert left!=right
             # Phone JPEG orientation is honored before positioning and exporting.
             page.locator('#camera-photo').set_input_files(tmp/'camera-oriented.jpg');ready(page)
-            page.locator('#photo-horizontal').fill('0');ready(page);left=pixel(page)
-            page.locator('#photo-horizontal').fill('100');ready(page);right=pixel(page)
+            pan_to_edge(page,'ArrowRight');left=pixel(page)
+            pan_to_edge(page,'ArrowLeft');right=pixel(page)
             assert left[2]>left[0] and right[0]>right[2]
             # All four recovery designs accept the user's photo, retained across choices.
             for option in range(4):

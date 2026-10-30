@@ -196,6 +196,19 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
 #consent-dialog .secondary{min-height:48px}
 #upload-error-detail{color:#8c2525}
 .card-upload [hidden]{display:none!important}
+
+.photo-edit-controls{display:block;margin-top:16px}
+.photo-edit-controls[hidden]{display:none}
+#photo-edit-help{font-size:11px;line-height:1.8;color:#475849;margin:0 0 12px}
+.photo-zoom-buttons{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.photo-zoom-buttons .secondary{font-size:22px;min-width:44px;padding:6px 12px}
+.photo-zoom-buttons .text-link{margin:0;min-height:44px;font-size:11px}
+.photo-zoom-buttons button.interactive-button{animation:none;box-shadow:none}
+.photo-zoom-buttons button.interactive-button::before{display:none}
+#photo-zoom-level{font:12px monospace;color:#24482d;min-width:42px;text-align:center}
+.result-card.photo-editable{touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.result-card.photo-editable:active{cursor:grabbing}
+.result-card.photo-editable:focus-visible{outline:3px solid #24482d;outline-offset:4px}
 </style>
 
 </head>
@@ -231,6 +244,8 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
   const MAX_PHOTO_BYTES=15*1024*1024;
   let heicDecoderTask=null,uploadBusy=false,uploadConsent=false,uploadError='',uploadStage='',uploadReceipt=null;
   let uploadAttempt=null,uploadRun=0,uploadRetrying=false,consentRequest=null;
+  const photoPointers=new Map();
+  let photoGesture=null,photoPreviewFrame=0,photoGestureChanged=false;
   const state = new Map();
   const escape = text => String(text).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const path = id => EMBEDDED_PHOTOS[id];
@@ -254,7 +269,7 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
       case 'possibility': html=`<div class="split"><div>${head(s)}${button('다음 사진 보기','photo-next')}<p class="photo-position" aria-live="polite"></p>${detail(s)}</div>${photo(s)}</div>`;break;
       case 'memory': html=`<span class="eyebrow">PART 06 / 2026 활동 기록</span><h2 tabindex="-1">${escape(s.title)}</h2><div class="memory-word">RECOVERY<span class="accent">.</span></div><img class="memory-photo" src="${path(s.photos[0])}" alt="풍천리 주민 연대 현장">${chips(s.labels)}<p class="copy">${escape(s.copy)}</p>${detail(s)}`;break;
       case 'choices': html=`<div class="choices-layout"><div>${head(s)}<span class="eyebrow">YOUR NEXT STEP ↗</span><p class="copy">한 가지 마음을 골라\n나만의 회복 카드를 남겨보세요.</p></div><div class="choices-list">${choices.map((c,i)=>`<button class="choice" data-choice="${i}"><span class="choice-num">0${i+1}</span><span><b>${c.title}</b><small>${c.description}</small></span><span class="choice-arrow" aria-hidden="true">↗</span></button>`).join('')}</div></div>`;break;
-      case 'result': html=`<div class="result-layout"><div>${head(s)}<fieldset class="photo-tools"><legend>내 사진으로 회복 카드 만들기</legend><div class="photo-buttons">${button('사진 찍기','camera')}${button('사진 선택하기','pick-photo')}${button('기본 사진으로 돌아가기','reset-photo','text-link')}</div><input type="file" id="camera-photo" accept="image/*" capture="environment" hidden><input type="file" id="choose-photo" accept="image/*" hidden><p id="photo-error" class="photo-error" role="alert" hidden></p><div class="photo-position-controls" hidden><label>좌우 위치<input type="range" id="photo-horizontal" min="0" max="100" value="50"></label><label>위아래 위치<input type="range" id="photo-vertical" min="0" max="100" value="50"></label></div><p id="photo-status" role="status">기본 사진을 사용하고 있습니다.</p></fieldset><div class="result-actions">${button('나의 회복 저장 및 보내기','download')}${button('카드 공유하기','share','secondary')}</div><section class="card-upload" aria-label="회복 카드 전송 상태" hidden><p id="upload-status" role="status" aria-live="polite"></p><p id="upload-error-detail" role="alert" hidden></p>${button('다시 시도','retry-upload')}<figure id="uploaded-card" hidden><img alt="Dropbox에 전송한 회복 카드"><figcaption>전송을 완료한 카드</figcaption></figure></section>${button('다른 회복 선택하기','choose','text-link')}${button('처음부터 다시 걷기','restart','text-link')}<p class="source">기독교환경운동연대 44주년 · RECOVERY 44</p></div><div><canvas class="result-card" id="result-card" width="1080" height="1350" role="img" aria-label="선택한 회복의 결과 카드"></canvas><p class="result-caption">MY RECOVERY · 2026<br>당신의 마음이 다음 회복의 시작입니다.</p></div></div>`;break;
+      case 'result': html=`<div class="result-layout"><div>${head(s)}<fieldset class="photo-tools"><legend>내 사진으로 회복 카드 만들기</legend><div class="photo-buttons">${button('사진 찍기','camera')}${button('사진 선택하기','pick-photo')}${button('기본 사진으로 돌아가기','reset-photo','text-link')}</div><input type="file" id="camera-photo" accept="image/*" capture="environment" hidden><input type="file" id="choose-photo" accept="image/*" hidden><p id="photo-error" class="photo-error" role="alert" hidden></p><div class="photo-position-controls photo-edit-controls" hidden><p id="photo-edit-help">카드의 사진을 끌어 위치를 맞추세요. 휴대폰은 두 손가락으로, PC는 마우스 휠이나 아래 버튼으로 확대·축소할 수 있습니다.</p><div class="photo-zoom-buttons"><button type="button" class="secondary" data-action="zoom-out" aria-label="사진 축소">−</button><output id="photo-zoom-level" aria-label="사진 확대 비율">100%</output><button type="button" class="secondary" data-action="zoom-in" aria-label="사진 확대">+</button>${button('원래대로','reset-view','text-link')}</div></div><p id="photo-status" role="status">기본 사진을 사용하고 있습니다.</p></fieldset><div class="result-actions">${button('나의 회복 카드 저장 및 보내기','download')}${button('카드 공유하기','share','secondary')}</div><section class="card-upload" aria-label="회복 카드 전송 상태" hidden><p id="upload-status" role="status" aria-live="polite"></p><p id="upload-error-detail" role="alert" hidden></p>${button('다시 시도','retry-upload')}<figure id="uploaded-card" hidden><img alt="Dropbox에 전송한 회복 카드"><figcaption>전송을 완료한 카드</figcaption></figure></section>${button('다른 회복 선택하기','choose','text-link')}${button('처음부터 다시 걷기','restart','text-link')}<p class="source">기독교환경운동연대 44주년 · RECOVERY 44</p></div><div><canvas class="result-card" id="result-card" width="1080" height="1350" role="img" aria-label="선택한 회복의 결과 카드"></canvas><p class="result-caption">MY RECOVERY · 2026<br>당신의 마음이 다음 회복의 시작입니다.</p></div></div>`;break;
       default:html=`<div class="split"><div class="text-block">${head(s)}${['switch','values','gallery'].includes(s.kind)?chips(s.labels):''}${s.kind==='values'?`<p class="response" aria-live="polite">${escape(s.responses[0])}</p>`:''}${detail(s)}</div>${photo(s,0,s.id==='research'?'photo-stack':'')}</div>`;
     }
     return html;
@@ -276,7 +291,7 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
   const sceneNumber=id=>scenes.findIndex(s=>s.id===id);
   function show(n,{focus=false,hash=true}={}) {
     if(!scenes.length)return;n=Math.max(0,Math.min(scenes.length-1,n));if(scenes[n].kind==='result'&&!chosen)n=sceneNumber('your-recovery');
-    const previous=index;index=n;frame++;
+    cancelPhotoEditing();const previous=index;index=n;frame++;
     const s=scenes[index];document.body.classList.toggle('light',s.part>=5);
     story.innerHTML=`<section class="scene ${s.kind} kind-${s.kind}" data-scene="${s.id}" data-part="${s.part}" data-transition="${n<previous?'back':'forward'}" aria-label="${escape(s.title.replaceAll('\n',' '))}">${render(s)}</section>`;
     $('#previous').disabled=index===0;$('#next').disabled=index>=sceneNumber('your-recovery');
@@ -295,16 +310,22 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
     const controls=$('.photo-position-controls'),status=$('#photo-status');
     if(!status)return;
     controls.hidden=!customPhoto;
-    if(customPhoto){$('#photo-horizontal').value=customPhoto.x*100;$('#photo-vertical').value=customPhoto.y*100;}
+    const canvas=$('#result-card');
+    canvas?.classList.toggle('photo-editable',!!customPhoto);
+    if(canvas){canvas.tabIndex=customPhoto?0:-1;canvas.setAttribute('aria-disabled',String(uploadBusy||photoLoading));if(customPhoto)canvas.setAttribute('aria-describedby','photo-edit-help');else canvas.removeAttribute('aria-describedby');}
+    if(customPhoto)$('#photo-zoom-level').textContent=`${Math.round(customPhoto.zoom*100)}%`;
+    $('[data-action="zoom-in"]').disabled=uploadBusy||photoLoading||!customPhoto||customPhoto.zoom>=4;
+    $('[data-action="zoom-out"]').disabled=uploadBusy||photoLoading||!customPhoto||customPhoto.zoom<=minimumPhotoZoom()+.000001;
+    $('[data-action="reset-view"]').disabled=uploadBusy||photoLoading;
     $('[data-action="reset-photo"]').hidden=!customPhoto&&!photoLoading;
-    status.textContent=photoLoading?'사진을 불러오고 있습니다.':customPhoto?'내 사진을 적용했습니다. 위치를 맞춘 뒤 저장 및 보내기를 눌러주세요.':'기본 사진을 사용하고 있습니다.';
-    story.querySelectorAll('[data-action="download"],[data-action="share"]').forEach(b=>b.disabled=photoLoading||!!cardTask||uploadBusy);
+    status.textContent=photoLoading?'사진을 불러오고 있습니다.':customPhoto?'내 사진을 적용했습니다. 카드에서 사진을 직접 움직여 구도를 맞춰주세요.':'기본 사진을 사용하고 있습니다.';
+    story.querySelectorAll('[data-action="download"],[data-action="share"]').forEach(b=>b.disabled=photoLoading||!!cardTask||uploadBusy||photoPointers.size>0||!!photoPreviewFrame);
     $('#result-card')?.setAttribute('aria-busy',String(photoLoading||!!cardTask));
     story.querySelectorAll('[data-action="camera"],[data-action="pick-photo"],[data-action="reset-photo"],[data-action="choose"],[data-action="restart"],.photo-position-controls input').forEach(el=>el.disabled=uploadBusy);
     updateUploadControls();
   }
   function clearPhoto(){
-    resetUploadState();photoRequest++;photoLoading=false;
+    cancelPhotoEditing();resetUploadState();photoRequest++;photoLoading=false;
     if(customPhoto)URL.revokeObjectURL(customPhoto.url);
     customPhoto=null;cardBlob=null;
   }
@@ -321,7 +342,7 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
   }
   async function usePhoto(file){
     if(!file||uploadBusy)return;
-    resetUploadState();
+    cancelPhotoEditing();resetUploadState();
     if(file.size>MAX_PHOTO_BYTES){photoError('사진은 최대 15MB까지 선택할 수 있습니다.');return;}
     const allowed=/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name)||/^image\/(jpeg|png|webp|hei[cf](?:-sequence)?)$/i.test(file.type);
     if(!allowed){photoError('JPG/JPEG, PNG, WEBP, HEIC/HEIF 사진 1장을 선택해주세요.');return;}
@@ -339,27 +360,28 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
       }
       if(request!==photoRequest){URL.revokeObjectURL(url);return;}
       if(customPhoto)URL.revokeObjectURL(customPhoto.url);
-      customPhoto={image,url,x:.5,y:.5};photoLoading=false;cardBlob=null;
+      customPhoto={image,url,panX:0,panY:0,zoom:1};photoLoading=false;cardBlob=null;
       if($('#result-card'))await drawCard();
     }catch(error){
       URL.revokeObjectURL(url);
       if(request===photoRequest){photoLoading=false;photoError(error.message?.startsWith('HEIC 변환기')?error.message:'사진을 열 수 없습니다. JPG/JPEG, PNG, WEBP 또는 다른 HEIC/HEIF 사진을 선택해주세요.');}
     }finally{if(request===photoRequest)updatePhotoControls();}
   }
-  function drawCard(){
+  function drawCard(encode=true){
     resetUploadState();const run=++cardRender;cardBlob=null;
-    const task=renderCard(run).finally(()=>{if(cardTask===task){cardTask=null;updatePhotoControls();}});
+    const task=renderCard(run,encode).finally(()=>{if(cardTask===task){cardTask=null;updatePhotoControls();}});
     cardTask=task;updatePhotoControls();return task;
   }
-  async function renderCard(run){const canvas=$('#result-card');if(!canvas||!chosen)return;const requestFrame=frame,personal=customPhoto;const g=canvas.getContext('2d');const c=chosen;canvas.setAttribute('aria-label',`MY RECOVERY 2026. 나는 ${c.title}을 이어가겠습니다.`);g.fillStyle='#08140f';g.fillRect(0,0,1080,1350);
+  async function renderCard(run,encode=true){const canvas=$('#result-card');if(!canvas||!chosen)return;const requestFrame=frame,personal=customPhoto;const g=canvas.getContext('2d');const c=chosen;canvas.setAttribute('aria-label',`MY RECOVERY 2026. 나는 ${c.title}을 이어가겠습니다.`);g.fillStyle='#08140f';g.fillRect(0,0,1080,1350);
     let im=personal?.image;try{if(!im){im=new Image();im.src=path(c.photo);await im.decode();}}catch{notify('사진을 불러오지 못해 그래픽 카드로 만듭니다.');}
     await document.fonts.ready;if(run!==cardRender||requestFrame!==frame||!canvas.isConnected)return;
-    if(im?.naturalWidth){const scale=Math.max(1080/im.width,900/im.height);const w=im.width*scale,h=im.height*scale;g.save();g.beginPath();g.rect(0,0,1080,900);g.clip();g.drawImage(im,(1080-w)*(personal?.x??.5),(900-h)*(personal?.y??.5),w,h);g.restore();}
+    if(im?.naturalWidth){const view=photoGeometry(personal,im);g.save();g.beginPath();g.rect(0,0,1080,900);g.clip();g.drawImage(im,view.x,view.y,view.w,view.h);g.restore();}
     const grad=g.createLinearGradient(0,0,0,850);grad.addColorStop(0,'#08140f18');grad.addColorStop(.4,'#08140f44');grad.addColorStop(1,'#08140f');g.fillStyle=grad;g.fillRect(0,0,1080,900);
     g.strokeStyle=c.color;g.lineWidth=2;g.strokeRect(45,45,990,1260);g.fillStyle=c.color;g.font='700 24px Recovery, sans-serif';g.fillText('MY RECOVERY',80,105);g.textAlign='right';g.fillText('2026 / 44 YEARS',1000,105);g.textAlign='left';
     // Distinct, light geometric marks for each choice, without additional image requests.
     g.strokeStyle=c.color;g.lineWidth=3;for(let i=0;i<5;i++){g.beginPath();if(c.key==='터전'){g.moveTo(790+i*30,580);g.lineTo(790+i*30,450-i*15);g.lineTo(765+i*30,490-i*15);}else if(c.key==='정의'){g.moveTo(740,440+i*25);g.bezierCurveTo(850,400+i*30,900,540-i*10,990,460+i*20);}else if(c.key==='연결'){g.arc(840+i*20,500,45,0,Math.PI*2);}else {g.moveTo(760+i*35,570);g.lineTo(760+i*35,450-i*20);}g.stroke();}
     g.fillStyle='#f1eee4';g.font='400 30px Recovery, sans-serif';g.fillText('나는',80,790);g.fillStyle=c.color;g.font='700 67px Recovery, sans-serif';c.short.split('\n').forEach((line,i)=>g.fillText(line,80,890+i*90));g.fillStyle='#f1eee4';g.font='400 30px Recovery, sans-serif';g.fillText('을 이어가겠습니다.',80,1055);g.fillStyle='#f1eee4';g.font='900 100px Arial, sans-serif';g.fillText('RECOVERY 44',74,1210);g.font='400 23px Recovery, sans-serif';g.fillStyle='#c0c7b9';g.fillText('기독교환경운동연대 · 함께 걸어온 회복의 시간',80,1260);
+    if(!encode)return;
     try{const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('PNG 생성 실패')),'image/png'));if(run===cardRender&&requestFrame===frame&&canvas.isConnected)cardBlob=blob;}catch{if(run===cardRender)notify('카드를 만들지 못했습니다. 다시 선택한 뒤 시도해주세요.');}
   }
   async function getCard(){if(photoLoading)throw new Error('사진을 불러오는 중입니다. 잠시 후 저장해주세요.');if(!cardBlob){await (cardTask||drawCard());}if(!cardBlob)throw new Error('카드를 아직 만들지 못했습니다. 잠시 후 다시 시도해주세요.');return cardBlob;}
@@ -372,12 +394,12 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
     const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`RECOVERY44_${key}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);
   }
   function askConsent(action){
-    if(uploadBusy||photoLoading||cardTask)return;
+    if(uploadBusy||photoLoading||cardTask||photoPointers.size||photoPreviewFrame)return;
     const snapshot=action==='retry'?uploadAttempt:{blob:cardBlob,key:chosen?.key,version:cardRender};
     if(!snapshot?.blob||snapshot.version!==cardRender){notify('카드를 아직 만들지 못했습니다. 잠시 후 다시 시도해주세요.');return;}
     if(snapshot.blob.size>MAX_PHOTO_BYTES){notify('완성 카드는 최대 15MB까지 저장·전송할 수 있습니다.');return;}
     consentRequest={action,snapshot};const dialog=$('#consent-dialog');dialog.returnValue='';
-    $('#consent-description').textContent=action==='share'?'완성 회복 카드를 기기의 공유 기능으로 전달합니다. 공유를 지원하지 않으면 PNG를 기기에 저장합니다. 동의하지 않으면 공유하거나 저장하지 않습니다.':'완성 회복 카드를 이 기기에 저장하고 RECOVERY 44 운영자의 Dropbox에 전송·보관하는 데 동의하시나요? 동의하지 않으면 저장하거나 전송하지 않습니다.';
+    $('#consent-description').textContent=action==='share'?'완성 회복 카드를 기기의 공유 기능으로 전달합니다. 공유를 지원하지 않으면 PNG를 기기에 저장합니다. 동의하지 않으면 공유하거나 저장하지 않습니다.':'회복 카드를 이 기기에 저장하고 기독교환경운동연대에게 전송,보관하는데 동의하시나요?';
     $('#consent-accept').textContent=action==='share'?'동의하고 공유하기':action==='retry'?'동의하고 다시 보내기':'동의하고 저장·보내기';
     openDialog(dialog,document.activeElement);
   }
@@ -397,7 +419,7 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
     status.classList.toggle('is-error',!!uploadError);
     const detail=$('#upload-error-detail');detail.hidden=!uploadError;detail.textContent=uploadError;
     const retry=$('[data-action="retry-upload"]');retry.hidden=!uploadAttempt||(!uploadError&&!uploadRetrying);
-    retry.disabled=uploadBusy;retry.textContent=uploadBusy&&uploadRetrying?'다시 전송하는 중입니다…':'다시 시도';
+    retry.disabled=uploadBusy||photoLoading||!!cardTask||photoPointers.size>0||!!photoPreviewFrame;retry.textContent=uploadBusy&&uploadRetrying?'다시 전송하는 중입니다…':'다시 시도';
     const receipt=$('#uploaded-card');receipt.hidden=!uploadReceipt;
     if(uploadReceipt){$('img',receipt).src=uploadReceipt.url;$('img',receipt).alt=`Dropbox에 전송한 ${uploadReceipt.key} 회복 카드`;}
     panel.setAttribute('aria-busy',String(uploadBusy));
@@ -428,7 +450,7 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
     }
   }
   function retryUpload(){
-    if(uploadBusy||!uploadAttempt)return;
+    if(uploadBusy||photoLoading||cardTask||photoPointers.size||photoPreviewFrame||!uploadAttempt)return;
     if(!uploadConsent){askConsent('retry');return;}
     transmitAttempt(uploadAttempt,true);
   }
@@ -448,14 +470,90 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
     if(['camera-photo','choose-photo'].includes(e.target.id)){const file=e.target.files?.[0];e.target.value='';usePhoto(file);}
 
   });
-  story.addEventListener('input',e=>{
-    if(!customPhoto||uploadBusy)return;
-    if(e.target.id==='photo-horizontal')customPhoto.x=+e.target.value/100;
-    else if(e.target.id==='photo-vertical')customPhoto.y=+e.target.value/100;
-    else return;
-    drawCard();
+  function minimumPhotoZoom(){const im=customPhoto.image;return Math.min(1080/im.naturalWidth,900/im.naturalHeight)/Math.max(1080/im.naturalWidth,900/im.naturalHeight);}
+  function photoGeometry(photo=customPhoto,image=photo?.image){
+    const base=Math.max(1080/image.naturalWidth,900/image.naturalHeight),scale=base*(photo?.zoom||1);
+    const w=image.naturalWidth*scale,h=image.naturalHeight*scale;
+    const rangeX=Math.abs(w-1080)/2,rangeY=Math.abs(h-900)/2;
+    const panX=Math.max(-rangeX,Math.min(rangeX,photo?.panX||0));
+    const panY=Math.max(-rangeY,Math.min(rangeY,photo?.panY||0));
+    return {base,scale,w,h,panX,panY,x:(1080-w)/2+panX,y:(900-h)/2+panY};
+  }
+  function cancelPhotoEditing(){
+    photoPointers.clear();photoGesture=null;photoGestureChanged=false;
+    if(photoPreviewFrame)cancelAnimationFrame(photoPreviewFrame);photoPreviewFrame=0;
+  }
+  function cardPoint(point){
+    const r=$('#result-card').getBoundingClientRect();
+    const rotated=matchMedia('(orientation: portrait) and (max-width: 767px) and (any-pointer: coarse)').matches;
+    return rotated?{x:(point.clientY-r.top)/r.height*1080,y:(r.right-point.clientX)/r.width*1350}:{x:(point.clientX-r.left)/r.width*1080,y:(point.clientY-r.top)/r.height*1350};
+  }
+  function normalizePhoto(){const view=photoGeometry();customPhoto.panX=view.panX;customPhoto.panY=view.panY;}
+  function refreshPhoto(preview=false){
+    normalizePhoto();resetUploadState();cardBlob=null;
+    if(preview){
+      if(!photoPreviewFrame)photoPreviewFrame=requestAnimationFrame(()=>{photoPreviewFrame=0;if(customPhoto&&$('#result-card'))drawCard(false);});
+      updatePhotoControls();
+    }else{
+      if(photoPreviewFrame)cancelAnimationFrame(photoPreviewFrame);photoPreviewFrame=0;drawCard();
+    }
+  }
+  function zoomPhoto(factor,anchor={x:540,y:450}){
+    if(!customPhoto||uploadBusy||photoLoading)return;
+    const view=photoGeometry(),zoom=Math.max(minimumPhotoZoom(),Math.min(4,customPhoto.zoom*factor));
+    if(zoom===customPhoto.zoom)return;
+    const ix=(anchor.x-view.x)/view.scale,iy=(anchor.y-view.y)/view.scale,scale=view.base*zoom;
+    customPhoto.zoom=zoom;
+    customPhoto.panX=anchor.x-ix*scale-(1080-customPhoto.image.naturalWidth*scale)/2;
+    customPhoto.panY=anchor.y-iy*scale-(900-customPhoto.image.naturalHeight*scale)/2;
+    refreshPhoto();
+  }
+  function rebasePhotoGesture(){
+    const points=[...photoPointers.values()],view=photoGeometry();
+    if(points.length===1)photoGesture={point:points[0],panX:view.panX,panY:view.panY};
+    else if(points.length===2){
+      const mid={x:(points[0].x+points[1].x)/2,y:(points[0].y+points[1].y)/2};
+      photoGesture={distance:Math.max(1,Math.hypot(points[1].x-points[0].x,points[1].y-points[0].y)),zoom:customPhoto.zoom,imageX:(mid.x-view.x)/view.scale,imageY:(mid.y-view.y)/view.scale};
+    }else photoGesture=null;
+  }
+  story.addEventListener('pointerdown',e=>{
+    if(e.target.id!=='result-card'||!customPhoto||uploadBusy||photoLoading||e.button!==0||photoPointers.size>=2)return;
+    const point=cardPoint(e);if(point.y<0||point.y>900||point.x<0||point.x>1080)return;
+    e.preventDefault();if(!photoPointers.size)photoGestureChanged=false;e.target.focus({preventScroll:true});e.target.setPointerCapture(e.pointerId);photoPointers.set(e.pointerId,point);rebasePhotoGesture();updatePhotoControls();
   });
-  const actions={'retry-upload':retryUpload,camera:()=>$('#camera-photo').click(),'pick-photo':()=>$('#choose-photo').click(),'reset-photo':()=>{clearPhoto();drawCard();},next:()=>show(index+1,{focus:true}),churches:()=>churches(),'photo-next':()=>nextPhoto(),nepal:()=>nepal(),river:()=>river(),download,share,choose:()=>show(sceneNumber('your-recovery'),{focus:true}),restart:()=>{clearPhoto();cardRender++;chosen=null;cardBlob=null;state.clear();show(0,{focus:true});}};
+  story.addEventListener('pointermove',e=>{
+    if(!customPhoto||uploadBusy||photoLoading||!photoPointers.has(e.pointerId)||!photoGesture)return;
+    e.preventDefault();const before={panX:customPhoto.panX,panY:customPhoto.panY,zoom:customPhoto.zoom};photoPointers.set(e.pointerId,cardPoint(e));const points=[...photoPointers.values()];
+    if(points.length===1){customPhoto.panX=photoGesture.panX+points[0].x-photoGesture.point.x;customPhoto.panY=photoGesture.panY+points[0].y-photoGesture.point.y;}
+    else{
+      const mid={x:(points[0].x+points[1].x)/2,y:(points[0].y+points[1].y)/2};
+      customPhoto.zoom=Math.max(minimumPhotoZoom(),Math.min(4,photoGesture.zoom*Math.hypot(points[1].x-points[0].x,points[1].y-points[0].y)/photoGesture.distance));
+      const base=Math.max(1080/customPhoto.image.naturalWidth,900/customPhoto.image.naturalHeight),scale=base*customPhoto.zoom;
+      customPhoto.panX=mid.x-photoGesture.imageX*scale-(1080-customPhoto.image.naturalWidth*scale)/2;
+      customPhoto.panY=mid.y-photoGesture.imageY*scale-(900-customPhoto.image.naturalHeight*scale)/2;
+    }
+    normalizePhoto();
+    if(Math.abs(customPhoto.panX-before.panX)>.001||Math.abs(customPhoto.panY-before.panY)>.001||Math.abs(customPhoto.zoom-before.zoom)>.0001){photoGestureChanged=true;refreshPhoto(true);}
+  });
+  for(const event of ['pointerup','pointercancel','lostpointercapture'])story.addEventListener(event,e=>{
+    if(!photoPointers.delete(e.pointerId)||!customPhoto)return;
+    if(photoPointers.size)rebasePhotoGesture();else{photoGesture=null;if(photoGestureChanged)refreshPhoto();else updatePhotoControls();}
+  });
+  story.addEventListener('wheel',e=>{
+    if(e.target.id!=='result-card'||!customPhoto||uploadBusy||photoLoading)return;
+    const point=cardPoint(e);if(point.y<0||point.y>900)return;
+    e.preventDefault();const delta=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?600:1);zoomPhoto(Math.exp(-delta*.0015),point);
+  },{passive:false});
+  story.addEventListener('keydown',e=>{
+    if(e.target.id!=='result-card'||!customPhoto||uploadBusy||photoLoading||e.ctrlKey||e.metaKey)return;
+    const step=e.shiftKey?50:10;
+    if(['+','=','-','_'].includes(e.key)){e.preventDefault();e.stopPropagation();zoomPhoto(['+','='].includes(e.key)?1.1:1/1.1);return;}
+    if(e.key==='ArrowLeft')customPhoto.panX-=step;else if(e.key==='ArrowRight')customPhoto.panX+=step;
+    else if(e.key==='ArrowUp')customPhoto.panY-=step;else if(e.key==='ArrowDown')customPhoto.panY+=step;
+    else if(e.key==='Home'){customPhoto.zoom=1;customPhoto.panX=0;customPhoto.panY=0;}else return;
+    e.preventDefault();e.stopPropagation();refreshPhoto();
+  });
+  const actions={'zoom-in':()=>zoomPhoto(1.2),'zoom-out':()=>zoomPhoto(1/1.2),'reset-view':()=>{if(customPhoto&&!uploadBusy){customPhoto.zoom=1;customPhoto.panX=0;customPhoto.panY=0;refreshPhoto();}},'retry-upload':retryUpload,camera:()=>$('#camera-photo').click(),'pick-photo':()=>$('#choose-photo').click(),'reset-photo':()=>{clearPhoto();drawCard();},next:()=>show(index+1,{focus:true}),churches:()=>churches(),'photo-next':()=>nextPhoto(),nepal:()=>nepal(),river:()=>river(),download,share,choose:()=>show(sceneNumber('your-recovery'),{focus:true}),restart:()=>{clearPhoto();cardRender++;chosen=null;cardBlob=null;state.clear();show(0,{focus:true});}};
   story.addEventListener('click',e=>{const target=e.target.closest('button');if(!target)return;if(uploadBusy&&(['camera','pick-photo','reset-photo','choose','restart'].includes(target.dataset.action)||target.dataset.choice!==undefined))return;if(target.dataset.action)actions[target.dataset.action]?.();if(target.dataset.option!==undefined)selectOption(+target.dataset.option);if(target.dataset.choice!==undefined){chosen=choices[+target.dataset.choice];show(sceneNumber('my-recovery'),{focus:true});}});
   story.addEventListener('error',e=>{if(e.target.tagName==='IMG'){e.target.classList.add('photo-failed');e.target.alt='이미지를 불러올 수 없습니다. '+e.target.alt;}},true);
   $('#previous').onclick=()=>show(index-1,{focus:true});$('#next').onclick=()=>show(index+1,{focus:true});
@@ -465,17 +563,18 @@ const EMBEDDED_SCENES=[{"id": "opening", "part": 0, "kind": "hero", "title": "RE
   document.addEventListener('keydown',e=>{const d=document.querySelector('dialog[open]');if(!d||e.key!=='Tab')return;const items=[...d.querySelectorAll('button:not(:disabled),a[href],input,select,textarea,[tabindex="0"]')];if(!items.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&(document.activeElement===first||!d.contains(document.activeElement))){e.preventDefault();last.focus();}else if(!e.shiftKey&&(document.activeElement===last||!d.contains(document.activeElement))){e.preventDefault();first.focus();}});
   document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
   document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close();}}));
-  document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||e.altKey||e.ctrlKey||e.metaKey)return;if(e.target.closest('input,textarea,select,.filmstrip'))return;const interactive=e.target.closest('button,a');if(['ArrowRight','ArrowLeft'].includes(e.key)){e.preventDefault();if(e.key==='ArrowRight'&&index<sceneNumber('your-recovery'))show(index+1,{focus:true});else if(e.key==='ArrowLeft')show(index-1,{focus:true});}else if(e.code==='Space'&&!interactive&&index<sceneNumber('your-recovery')){e.preventDefault();show(index+1,{focus:true});}});
+  document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||e.altKey||e.ctrlKey||e.metaKey)return;if(e.target.closest('input,textarea,select,.filmstrip,#result-card'))return;const interactive=e.target.closest('button,a');if(['ArrowRight','ArrowLeft'].includes(e.key)){e.preventDefault();if(e.key==='ArrowRight'&&index<sceneNumber('your-recovery'))show(index+1,{focus:true});else if(e.key==='ArrowLeft')show(index-1,{focus:true});}else if(e.code==='Space'&&!interactive&&index<sceneNumber('your-recovery')){e.preventDefault();show(index+1,{focus:true});}});
   let touch=null;
   const touchDelta=(t,point)=>{
     const x=point.clientX-t.x,y=point.clientY-t.y;
     return t.rotated?{x:y,y:-x}:{x,y};
   };
   document.addEventListener('touchstart',e=>{
+    if(e.target.id==='result-card'&&customPhoto&&cardPoint(e.touches[0]).y<=900){touch=null;return;}
     if(e.touches.length!==1||e.target.closest('input,label')){touch=null;return;}
     const point=e.touches[0],scene=e.target.closest('.scene,dialog');if(!scene)return;
     touch={x:point.clientX,y:point.clientY,lastY:0,axis:null,scene,
-      noNavigation:!!e.target.closest('dialog,button,a,.filmstrip'),
+      noNavigation:!!e.target.closest('dialog,button,a,.filmstrip,#result-card'),
       rotated:matchMedia('(orientation: portrait) and (max-width: 767px) and (any-pointer: coarse)').matches};
   },{passive:true});
   document.addEventListener('touchmove',e=>{

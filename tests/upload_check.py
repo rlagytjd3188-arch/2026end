@@ -52,14 +52,15 @@ with tempfile.TemporaryDirectory() as tmp,sync_playwright() as p:
         page.route(ENDPOINT,handle);page.on('pageerror',lambda e:errors.append(str(e)));page.on('download',lambda d:downloads.append(d))
         page.on('request',lambda req:extra.append(req.url) if build and req.url.startswith('http') and req.url!=ENDPOINT and req.resource_type!='document' else None)
         page.goto('http://127.0.0.1:4173/'+build+'#your-recovery');page.locator('[data-choice="0"]').click();ready(page)
-        assert page.locator('[data-action="download"]').inner_text()=='나의 회복 저장 및 보내기'
-        assert page.locator('#photo-coordinate-pad').count()==0
+        assert page.locator('[data-action="download"]').inner_text()=='나의 회복 카드 저장 및 보내기'
+        assert page.locator('#photo-coordinate-pad,#photo-horizontal,#photo-vertical').count()==0
         assert page.locator('.photo-file-help,.photo-privacy').count()==0
         assert '2026년, 우리는 함께 걸었습니다.' not in page.locator('.scene').inner_text()
         for action in ['camera','pick-photo']:
             assert page.locator(f'[data-action="{action}"]').evaluate('(e)=>getComputedStyle(e).backgroundColor')=='rgb(36, 72, 45)'
         for action in ['download','share']:
             page.locator(f'[data-action="{action}"]').click();assert page.locator('#consent-dialog').is_visible()
+            if action=='download':assert page.locator('#consent-description').inner_text()=='회복 카드를 이 기기에 저장하고 기독교환경운동연대에게 전송,보관하는데 동의하시나요?'
             page.locator('#consent-decline').click()
         assert not requests and not downloads
         assert page.locator('#choose-photo').get_attribute('accept')=='image/*'
@@ -102,7 +103,7 @@ with tempfile.TemporaryDirectory() as tmp,sync_playwright() as p:
         assert page.locator('.card-upload').is_hidden()
         assert page.locator('[data-action="retry-upload"]').is_hidden()
         begin(page);fail_pending(page,pending)
-        page.locator('#photo-horizontal').fill('70');ready(page)
+        page.locator('[data-action="zoom-in"]').click();ready(page)
         assert page.locator('.card-upload').is_hidden()
         # Genuine HEIC and HEIF remain supported; no automatic upload.
         count=len(requests)

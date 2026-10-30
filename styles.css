@@ -190,3 +190,16 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
 #consent-dialog .secondary{min-height:48px}
 #upload-error-detail{color:#8c2525}
 .card-upload [hidden]{display:none!important}
+
+.photo-edit-controls{display:block;margin-top:16px}
+.photo-edit-controls[hidden]{display:none}
+#photo-edit-help{font-size:11px;line-height:1.8;color:#475849;margin:0 0 12px}
+.photo-zoom-buttons{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.photo-zoom-buttons .secondary{font-size:22px;min-width:44px;padding:6px 12px}
+.photo-zoom-buttons .text-link{margin:0;min-height:44px;font-size:11px}
+.photo-zoom-buttons button.interactive-button{animation:none;box-shadow:none}
+.photo-zoom-buttons button.interactive-button::before{display:none}
+#photo-zoom-level{font:12px monospace;color:#24482d;min-width:42px;text-align:center}
+.result-card.photo-editable{touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.result-card.photo-editable:active{cursor:grabbing}
+.result-card.photo-editable:focus-visible{outline:3px solid #24482d;outline-offset:4px}
