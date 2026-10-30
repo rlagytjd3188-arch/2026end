@@ -30,7 +30,7 @@
     "width": 512,
     "height": 341,
     "source": "26년 2월 기독교환경운동연대 활동기록.pdf",
-    "note": "첨부 PDF에서 추출. 사진 속 활동의 설명은 연결된 장면과 출처를 참조."
+    "note": "PDF 원본 픽셀을 크기 변경 없이 무손실 WebP로 저장."
   },
   {
     "id": "02-p03-4",
@@ -41,7 +41,7 @@
     "width": 512,
     "height": 341,
     "source": "26년 2월 기독교환경운동연대 활동기록.pdf",
-    "note": "첨부 PDF에서 추출. 사진 속 활동의 설명은 연결된 장면과 출처를 참조."
+    "note": "PDF 원본 픽셀을 크기 변경 없이 무손실 WebP로 저장."
   },
   {
     "id": "03-p08-0",
@@ -448,5 +448,38 @@
     "height": 646,
     "source": "사용자가 GitHub에 업로드한 기후정의행진.jpg",
     "note": "사용자 지정 행진 배경 사진. 원본 그대로 사용."
+  },
+  {
+    "id": "10-p09-0",
+    "file": "assets/photos/10-p09-0.webp",
+    "month": 10,
+    "page": 9,
+    "image_index": 0,
+    "source": "26년 10월 기독교환경운동연대 활동기록.pdf",
+    "width": 512,
+    "height": 384,
+    "note": "PDF 원본 픽셀을 크기 변경 없이 무손실 WebP로 저장."
+  },
+  {
+    "id": "10-p09-2",
+    "file": "assets/photos/10-p09-2.webp",
+    "month": 10,
+    "page": 9,
+    "image_index": 2,
+    "source": "26년 10월 기독교환경운동연대 활동기록.pdf",
+    "width": 512,
+    "height": 384,
+    "note": "PDF 원본 픽셀을 크기 변경 없이 무손실 WebP로 저장."
+  },
+  {
+    "id": "06-p10-1",
+    "file": "assets/photos/06-p10-1.webp",
+    "month": 6,
+    "page": 10,
+    "image_index": 1,
+    "source": "26년 6월 기독교환경운동연대 활동기록.pdf",
+    "width": 512,
+    "height": 384,
+    "note": "PDF 원본 픽셀을 크기 변경 없이 무손실 WebP로 저장."
   }
 ]

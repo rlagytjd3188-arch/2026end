@@ -68,3 +68,16 @@ body.light .masthead{color:#10271b}body.light .brand-symbol,body.light .brand b{
 .scene button.interactive-button:active{animation-play-state:running}
 @keyframes smallButtonHeartbeat{0%,52%,100%{transform:scale(1);box-shadow:0 0 0 0 #cefa7300}16%{transform:scale(1.045);box-shadow:0 0 14px 3px #cefa7359}28%{transform:scale(1.005)}40%{transform:scale(1.025);box-shadow:0 0 10px 2px #cefa7340}}
 @media(prefers-reduced-motion:reduce){.scene button.interactive-button{animation:none!important;transform:none!important;box-shadow:none}}
+
+/* Preserve the full retirement/inauguration photos at their native size. */
+[data-scene="research"] .visual{width:100%;max-width:512px;justify-self:center}
+[data-scene="research"] .visual>img{height:auto;min-height:0;max-height:none;aspect-ratio:512/341;object-fit:contain;filter:none}
+.church-photo{object-position:center 40%}
+.calendar-apply{margin-top:22px;text-decoration:none}
+.river{background:transparent}
+.river .full-photo{filter:none}
+.river:after{display:none}
+.river-content{text-shadow:0 1px 5px #000,0 2px 15px #000}
+.river .field-record,.river .copy,.river .eyebrow,.river .response{color:#fff}
+.river .primary{text-shadow:none}
+#carbon-dialog .nepal-message{font-size:16px;line-height:1.85}

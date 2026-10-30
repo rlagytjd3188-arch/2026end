@@ -22,8 +22,21 @@ with sync_playwright() as p:
     assert page.locator('.field-record').count()==1
     assert page.locator('.field-record p').inner_text()==s['detail']
    assert page.locator('[data-action="detail"]').count()==0
-   for option in page.locator('[data-option]').all():
+   selected_photos=[]
+   for n,option in enumerate(page.locator('[data-option]').all()):
     option.click();assert option.get_attribute('aria-pressed')=='true'
+    if s['id'] in ['sanhwang','daily-worship']:
+     selected_photos.append(page.locator('.visual img').get_attribute('src'))
+    if s.get('details'):
+     assert page.locator('.field-record p').inner_text()==s['details'][n]
+   if selected_photos:assert len(set(selected_photos))==3
+   if s['id']=='response':assert page.locator('.scene button').count()==0
+   if s['id']=='research':
+    assert page.locator('[data-option]').all_text_contents()==['이임','취임']
+    assert page.locator('.visual img').evaluate('(im)=>getComputedStyle(im).objectFit')=='contain'
+   if s.get('details'):
+    page.locator('#next').click();page.locator('#previous').click()
+    assert page.locator('.field-record p').inner_text()==s['details'][-1]
    if s['kind']=='timeline':
     page.locator('[data-step="2"]').click();assert '위법성' in page.locator('.timeline-copy').inner_text()
    if s['kind']=='churches':
@@ -34,6 +47,10 @@ with sync_playwright() as p:
     assert page.locator('[data-counter]').inner_text()=='16'
     page.locator('[data-action="churches"]').click();page.wait_for_timeout(1100)
    if s['kind']=='calendar':
+    link=page.get_by_role('link',name='생태달력 신청하기')
+    assert link.get_attribute('href')=='https://forms.gle/eXWtNmhnSnByQJ318'
+    assert link.get_attribute('target')=='_blank'
+    assert 'noopener' in link.get_attribute('rel')
     assert page.locator('.calendar-photo img').evaluate('(im)=>im.complete && im.naturalWidth==540')
     assert page.locator('[data-action="season"]').count()==0
     assert page.locator('.calendar-season').count()==0
@@ -49,12 +66,15 @@ with sync_playwright() as p:
     page.keyboard.press('Escape');assert not page.locator('#carbon-dialog').is_visible()
     assert page.locator('[data-action="nepal"]').evaluate('(el)=>el===document.activeElement')
    if s['kind']=='river':
+    assert page.locator('.full-photo').evaluate('(im)=>getComputedStyle(im).filter')=='none'
+    assert page.locator('.river').evaluate('(el)=>getComputedStyle(el,"::after").display')=='none'
     page.locator('[data-action="river"]').click();page.wait_for_timeout(1100)
     assert page.locator('[data-counter="20000"]').inner_text()=='20,000+'
     assert page.locator('[data-counter="620"]').inner_text()=='620'
     page.locator('[data-action="river"]').click();page.wait_for_timeout(1100)
     assert page.locator('[data-counter="20000"]').inner_text()=='0'
    if s['kind']=='film':
+    assert page.locator('.filmstrip figcaption').count()==0
     strip=page.locator('.filmstrip');strip.evaluate('(el)=>el.scrollLeft=el.scrollWidth');assert strip.evaluate('(el)=>el.scrollLeft')>0
    if s['id'] in ['gadeok','churches','another-world','your-recovery']:
     page.locator('.scene').evaluate('(el)=>el.scrollTop=0');page.wait_for_timeout(750);page.screenshot(path=str(OUT/f'{name}-{s["id"]}.png'))
