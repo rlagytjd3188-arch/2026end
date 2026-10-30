@@ -1,0 +1,1 @@
+card-sample.heic is a synthetic 160×240 test image generated for RECOVERY44 tests with a plain background, rectangle and RECOVERY TEST lettering. It contains no participant photo. Encoded locally using Pillow + pillow-heif; the encoder is not a runtime dependency.

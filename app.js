@@ -12,6 +12,9 @@
   ];
   let scenes = [], index = -1, chosen = null, frame = 0, toastTimer, cardBlob = null;
   let customPhoto = null, photoRequest = 0, photoLoading = false, cardRender = 0, cardTask = null;
+  const UPLOAD_URL='https://recovery44-upload.kh3188.workers.dev/';
+  const MAX_PHOTO_BYTES=15*1024*1024;
+  let heicDecoderTask=null,uploadBusy=false,uploadConsent=false,uploadError='',uploadStage='',uploadReceipt=null;
   const state = new Map();
   const escape = text => String(text).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const path = id => `assets/photos/${id}.webp`;
@@ -35,7 +38,7 @@
       case 'possibility': html=`<div class="split"><div>${head(s)}${button('다음 사진 보기','photo-next')}<p class="photo-position" aria-live="polite"></p>${detail(s)}</div>${photo(s)}</div>`;break;
       case 'memory': html=`<span class="eyebrow">PART 06 / 2026 활동 기록</span><h2 tabindex="-1">${escape(s.title)}</h2><div class="memory-word">RECOVERY<span class="accent">.</span></div><img class="memory-photo" src="${path(s.photos[0])}" alt="풍천리 주민 연대 현장">${chips(s.labels)}<p class="copy">${escape(s.copy)}</p>${detail(s)}`;break;
       case 'choices': html=`<div class="choices-layout"><div>${head(s)}<span class="eyebrow">YOUR NEXT STEP ↗</span><p class="copy">한 가지 마음을 골라\n나만의 회복 카드를 남겨보세요.</p></div><div class="choices-list">${choices.map((c,i)=>`<button class="choice" data-choice="${i}"><span class="choice-num">0${i+1}</span><span><b>${c.title}</b><small>${c.description}</small></span><span class="choice-arrow" aria-hidden="true">↗</span></button>`).join('')}</div></div>`;break;
-      case 'result': html=`<div class="result-layout"><div>${head(s)}<fieldset class="photo-tools"><legend>내 사진으로 회복 카드 만들기</legend><div class="photo-buttons">${button('사진 찍기','camera','secondary')}${button('사진 선택하기','pick-photo','secondary')}${button('기본 사진으로 돌아가기','reset-photo','text-link')}</div><input type="file" id="camera-photo" accept="image/*" capture="environment" hidden><input type="file" id="choose-photo" accept="image/*" hidden><div class="photo-position-controls" hidden><p id="photo-coordinate-help" class="photo-coordinate-help">점을 움직이거나 X·Y 값을 입력하세요. 가운데는 (0, 0)입니다.</p><div id="photo-coordinate-pad" class="photo-coordinate-pad" role="group" aria-roledescription="2차원 위치 조절" aria-label="사진 위치 X 0, Y 0" aria-describedby="photo-coordinate-help" tabindex="0"><span class="coordinate-north" aria-hidden="true">+Y</span><span class="coordinate-east" aria-hidden="true">+X</span><span class="coordinate-south" aria-hidden="true">−Y</span><span class="coordinate-west" aria-hidden="true">−X</span><span class="photo-coordinate-dot" aria-hidden="true"></span></div><div class="photo-coordinate-values"><label for="photo-x">X · 좌우<input type="number" id="photo-x" min="-100" max="100" step="1" value="0" inputmode="numeric"></label><label for="photo-y">Y · 상하<input type="number" id="photo-y" min="-100" max="100" step="1" value="0" inputmode="numeric"></label><output id="photo-coordinate-output" aria-live="off">(0, 0)</output>${button('가운데로','center-photo','text-link')}</div><p class="photo-coordinate-help">범위 −100~100 · +X는 오른쪽, +Y는 위쪽으로 이동합니다. 사진이 프레임을 채우는 범위에서 조절됩니다.</p></div><p id="photo-status" role="status">기본 사진을 사용하고 있습니다.</p><p class="photo-privacy">사진은 이 기기에서만 사용하며 서버에 전송하지 않습니다.</p></fieldset><div class="result-actions">${button('나의 회복 PNG 저장','download')}${button('카드 공유하기','share','secondary')}</div>${button('다른 회복 선택하기','choose','text-link')}${button('처음부터 다시 걷기','restart','text-link')}<p class="source">기독교환경운동연대 44주년 · RECOVERY 44<br>선택과 카드 이미지는 서버로 전송되지 않습니다.</p></div><div><canvas class="result-card" id="result-card" width="1080" height="1350" role="img" aria-label="선택한 회복의 결과 카드"></canvas><p class="result-caption">MY RECOVERY · 2026<br>당신의 마음이 다음 회복의 시작입니다.</p></div></div>`;break;
+      case 'result': html=`<div class="result-layout"><div>${head(s)}<fieldset class="photo-tools"><legend>내 사진으로 회복 카드 만들기</legend><div class="photo-buttons">${button('사진 찍기','camera','secondary')}${button('사진 선택하기','pick-photo','secondary')}${button('기본 사진으로 돌아가기','reset-photo','text-link')}</div><input type="file" id="camera-photo" accept="image/*" capture="environment" hidden><input type="file" id="choose-photo" accept="image/*" hidden><p class="photo-file-help">사진 1장 · 최대 15MB · JPG/JPEG, PNG, WEBP, HEIC/HEIF</p><p id="photo-error" class="photo-error" role="alert" hidden></p><div class="photo-position-controls" hidden><p id="photo-coordinate-help" class="photo-coordinate-help">점을 움직이거나 X·Y 값을 입력하세요. 가운데는 (0, 0)입니다.</p><div id="photo-coordinate-pad" class="photo-coordinate-pad" role="group" aria-roledescription="2차원 위치 조절" aria-label="사진 위치 X 0, Y 0" aria-describedby="photo-coordinate-help" tabindex="0"><span class="coordinate-north" aria-hidden="true">+Y</span><span class="coordinate-east" aria-hidden="true">+X</span><span class="coordinate-south" aria-hidden="true">−Y</span><span class="coordinate-west" aria-hidden="true">−X</span><span class="photo-coordinate-dot" aria-hidden="true"></span></div><div class="photo-coordinate-values"><label for="photo-x">X · 좌우<input type="number" id="photo-x" min="-100" max="100" step="1" value="0" inputmode="numeric"></label><label for="photo-y">Y · 상하<input type="number" id="photo-y" min="-100" max="100" step="1" value="0" inputmode="numeric"></label><output id="photo-coordinate-output" aria-live="off">(0, 0)</output>${button('가운데로','center-photo','text-link')}</div><p class="photo-coordinate-help">범위 −100~100 · +X는 오른쪽, +Y는 위쪽으로 이동합니다. 사진이 프레임을 채우는 범위에서 조절됩니다.</p></div><p id="photo-status" role="status">기본 사진을 사용하고 있습니다.</p><p class="photo-privacy">선택한 원본은 이 기기에서만 사용합니다. 동의하고 보내기 버튼을 누르면 완성 카드만 운영자의 Dropbox에 저장됩니다.</p></fieldset><div class="result-actions">${button('나의 회복 PNG 저장','download')}${button('카드 공유하기','share','secondary')}</div><section class="card-upload" aria-labelledby="upload-title" hidden><h3 id="upload-title">나의 회복 카드 보내기</h3><p>프레임과 회복 문구가 담긴 완성 카드 1장을 RECOVERY 44 운영자에게 보냅니다.</p><label class="upload-consent"><input type="checkbox" id="upload-consent">완성 카드가 운영자의 Dropbox에 전송·저장되는 데 동의합니다.</label>${button('완성 카드 보내기','upload-card')}<p id="upload-status" role="status" aria-live="polite"></p><figure id="uploaded-card" hidden><img alt="Dropbox에 전송한 회복 카드"><figcaption>최근 전송을 완료한 카드</figcaption></figure></section>${button('다른 회복 선택하기','choose','text-link')}${button('처음부터 다시 걷기','restart','text-link')}<p class="source">기독교환경운동연대 44주년 · RECOVERY 44<br>완성 카드는 동의 후 보내기 버튼을 누른 경우에만 전송됩니다.</p></div><div><canvas class="result-card" id="result-card" width="1080" height="1350" role="img" aria-label="선택한 회복의 결과 카드"></canvas><p class="result-caption">MY RECOVERY · 2026<br>당신의 마음이 다음 회복의 시작입니다.</p></div></div>`;break;
       default:html=`<div class="split"><div class="text-block">${head(s)}${['switch','values','gallery'].includes(s.kind)?chips(s.labels):''}${s.kind==='values'?`<p class="response" aria-live="polite">${escape(s.responses[0])}</p>`:''}${detail(s)}</div>${photo(s,0,s.id==='research'?'photo-stack':'')}</div>`;
     }
     return html;
@@ -88,29 +91,52 @@
     status.textContent=photoLoading?'사진을 불러오고 있습니다.':customPhoto?'내 사진을 적용했습니다. 위치를 조절한 뒤 PNG로 저장하세요.':'기본 사진을 사용하고 있습니다.';
     story.querySelectorAll('[data-action="download"],[data-action="share"]').forEach(b=>b.disabled=photoLoading||!!cardTask);
     $('#result-card')?.setAttribute('aria-busy',String(photoLoading||!!cardTask));
+    updateUploadControls();
   }
   function clearPhoto(){
     photoRequest++;photoLoading=false;
     if(customPhoto)URL.revokeObjectURL(customPhoto.url);
     customPhoto=null;cardBlob=null;
   }
+  function photoError(message){const el=$('#photo-error');if(el){el.hidden=!message;el.textContent=message;}if(message)notify(message);}
+  function loadHeicDecoder(){
+    if(window.HeicTo)return Promise.resolve(window.HeicTo);
+    if(!heicDecoderTask)heicDecoderTask=new Promise((resolve,reject)=>{
+      const script=document.createElement('script');script.src='assets/vendor/heic-to-1.6.7.js';
+      script.onload=()=>window.HeicTo?resolve(window.HeicTo):reject(new Error('HEIC 변환기를 불러오지 못했습니다.'));
+      script.onerror=()=>{script.remove();heicDecoderTask=null;reject(new Error('HEIC 변환기를 불러오지 못했습니다. 잠시 후 다시 선택해주세요.'));};
+      document.head.append(script);
+    });
+    return heicDecoderTask;
+  }
   async function usePhoto(file){
     if(!file)return;
-    const request=++photoRequest,url=URL.createObjectURL(file),image=new Image();
+    if(file.size>MAX_PHOTO_BYTES){photoError('사진은 최대 15MB까지 선택할 수 있습니다.');return;}
+    const allowed=/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name)||/^image\/(jpeg|png|webp|hei[cf](?:-sequence)?)$/i.test(file.type);
+    if(!allowed){photoError('JPG/JPEG, PNG, WEBP, HEIC/HEIF 사진 1장을 선택해주세요.');return;}
+    photoError('');
+    const request=++photoRequest,image=new Image();let url=URL.createObjectURL(file);
     photoLoading=true;updatePhotoControls();
     try{
-      image.src=url;await image.decode();
+      image.src=url;
+      try{await image.decode();}catch(error){
+        if(!/\.(heic|heif)$/i.test(file.name)&&!/^image\/hei[cf]/i.test(file.type))throw error;
+        const convert=await loadHeicDecoder();
+        const converted=await convert({blob:file,type:'image/jpeg',quality:.94});
+        if(request!==photoRequest){URL.revokeObjectURL(url);return;}
+        URL.revokeObjectURL(url);url=URL.createObjectURL(converted);image.src=url;await image.decode();
+      }
       if(request!==photoRequest){URL.revokeObjectURL(url);return;}
       if(customPhoto)URL.revokeObjectURL(customPhoto.url);
       customPhoto={image,url,x:.5,y:.5};photoLoading=false;cardBlob=null;
       if($('#result-card'))await drawCard();
-    }catch{
+    }catch(error){
       URL.revokeObjectURL(url);
-      if(request===photoRequest){photoLoading=false;notify('사진을 열 수 없습니다. JPG, PNG 또는 WebP 사진을 선택해주세요.');}
+      if(request===photoRequest){photoLoading=false;photoError(error.message?.startsWith('HEIC 변환기')?error.message:'사진을 열 수 없습니다. JPG/JPEG, PNG, WEBP 또는 다른 HEIC/HEIF 사진을 선택해주세요.');}
     }finally{if(request===photoRequest)updatePhotoControls();}
   }
   function drawCard(){
-    const run=++cardRender;cardBlob=null;
+    const run=++cardRender;cardBlob=null;uploadConsent=false;
     const task=renderCard(run).finally(()=>{if(cardTask===task){cardTask=null;updatePhotoControls();}});
     cardTask=task;updatePhotoControls();return task;
   }
@@ -128,9 +154,47 @@
   async function getCard(){if(photoLoading)throw new Error('사진을 불러오는 중입니다. 잠시 후 저장해주세요.');if(!cardBlob){await (cardTask||drawCard());}if(!cardBlob)throw new Error('카드를 아직 만들지 못했습니다. 잠시 후 다시 시도해주세요.');return cardBlob;}
   async function download(){try{const blob=await getCard();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`RECOVERY44_${chosen.key}.png`;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);notify('PNG를 만들었습니다. 다운로드 파일을 확인해주세요.');}catch(e){notify(e.message);}}
   async function share(){try{const blob=await getCard();const file=new File([blob],`RECOVERY44_${chosen.key}.png`,{type:'image/png'});if(navigator.canShare?.({files:[file]})&&navigator.share){await navigator.share({files:[file],title:'MY RECOVERY · 2026'});}else {await download();notify('이 브라우저에서는 파일 공유 대신 PNG 저장을 제공합니다.');}}catch(e){if(e.name!=='AbortError')notify('공유하지 못했습니다. PNG 저장을 이용해주세요.');}}
+  function updateUploadControls(){
+    const panel=$('.card-upload');if(!panel)return;
+    panel.hidden=!customPhoto&&!uploadBusy&&!uploadError&&!uploadReceipt;
+    const busy=uploadBusy||photoLoading||!!cardTask;
+    $('#upload-consent').checked=uploadConsent;$('#upload-consent').disabled=busy||!customPhoto;
+    $('[data-action="upload-card"]').disabled=busy||!customPhoto||!uploadConsent;
+    $('[data-action="upload-card"]').textContent=uploadBusy?'전송 중…':'완성 카드 보내기';
+    const status=$('#upload-status');status.textContent=uploadError||(uploadBusy?uploadStage:uploadReceipt?'완성 카드가 운영자의 Dropbox에 전송되었습니다.':'전송에 동의한 경우에만 완성 카드를 보냅니다.');
+    status.classList.toggle('is-error',!!uploadError);
+    const receipt=$('#uploaded-card');receipt.hidden=!uploadReceipt;
+    if(uploadReceipt){$('img',receipt).src=uploadReceipt.url;$('img',receipt).alt=`최근 Dropbox에 전송한 ${uploadReceipt.key} 회복 카드`;}
+    panel.setAttribute('aria-busy',String(uploadBusy));
+  }
+  async function uploadCard(){
+    if(uploadBusy||!uploadConsent||!customPhoto||photoLoading||cardTask)return;
+    uploadBusy=true;uploadError='';uploadStage='사진을 생성 중입니다..';updateUploadControls();
+    const version=cardRender,key=chosen.key;let timeout;
+    try{
+      const blob=await getCard();
+      if(version!==cardRender||photoLoading||!customPhoto)throw new Error('사진이 변경되었습니다. 카드 생성이 끝난 뒤 다시 보내주세요.');
+      if(blob.size>MAX_PHOTO_BYTES)throw new Error('완성 카드는 최대 15MB까지 보낼 수 있습니다.');
+      const file=new File([blob],`RECOVERY44_${Date.now()}_${Math.random().toString(36).slice(2,8)}.png`,{type:'image/png'});
+      const form=new FormData();form.append('file',file);
+      const controller=new AbortController();timeout=setTimeout(()=>controller.abort(),90000);
+      uploadStage='완성 카드를 전송 중입니다…';updateUploadControls();
+      const response=await fetch(UPLOAD_URL,{method:'POST',body:form,credentials:'omit',referrerPolicy:'no-referrer',signal:controller.signal});
+      const data=await response.json().catch(()=>null);
+      if(!response.ok||data?.ok!==true){
+        const error=typeof data?.error==='string'?data.error:data?.error?.message;
+        throw new Error(error||(data?.error?JSON.stringify(data.error):`사진 전송에 실패했습니다. (HTTP ${response.status})`));
+      }
+      if(uploadReceipt)URL.revokeObjectURL(uploadReceipt.url);
+      uploadReceipt={url:URL.createObjectURL(blob),key};uploadConsent=false;
+    }catch(error){
+      uploadError=error.name==='AbortError'?'서버 응답 시간이 길어 전송 결과를 확인하지 못했습니다.':error instanceof TypeError?'사진을 전송하지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도해주세요.':error.message;
+    }finally{clearTimeout(timeout);uploadBusy=false;updateUploadControls();}
+  }
   story.addEventListener('change',e=>{
     if(['camera-photo','choose-photo'].includes(e.target.id)){const file=e.target.files?.[0];e.target.value='';usePhoto(file);}
     if(['photo-x','photo-y'].includes(e.target.id))updatePhotoControls();
+    if(e.target.id==='upload-consent'){uploadConsent=e.target.checked;updateUploadControls();}
   });
   story.addEventListener('input',e=>{
     if(customPhoto&&['photo-x','photo-y'].includes(e.target.id)&&e.target.value!==''&&!e.target.validity.badInput){setPhotoCoordinates(+$('#photo-x').value,+$('#photo-y').value);}
@@ -164,7 +228,7 @@
     else if(e.key==='Home'){x=0;y=0;}else return;
     e.preventDefault();e.stopPropagation();setPhotoCoordinates(x,y);
   });
-  const actions={'center-photo':()=>setPhotoCoordinates(0,0),camera:()=>$('#camera-photo').click(),'pick-photo':()=>$('#choose-photo').click(),'reset-photo':()=>{clearPhoto();drawCard();},next:()=>show(index+1,{focus:true}),churches:()=>churches(),'photo-next':()=>nextPhoto(),nepal:()=>nepal(),river:()=>river(),download,share,choose:()=>show(sceneNumber('your-recovery'),{focus:true}),restart:()=>{clearPhoto();cardRender++;chosen=null;cardBlob=null;state.clear();show(0,{focus:true});}};
+  const actions={'upload-card':uploadCard,'center-photo':()=>setPhotoCoordinates(0,0),camera:()=>$('#camera-photo').click(),'pick-photo':()=>$('#choose-photo').click(),'reset-photo':()=>{clearPhoto();drawCard();},next:()=>show(index+1,{focus:true}),churches:()=>churches(),'photo-next':()=>nextPhoto(),nepal:()=>nepal(),river:()=>river(),download,share,choose:()=>show(sceneNumber('your-recovery'),{focus:true}),restart:()=>{clearPhoto();cardRender++;chosen=null;cardBlob=null;state.clear();show(0,{focus:true});}};
   story.addEventListener('click',e=>{const target=e.target.closest('button');if(!target)return;if(target.dataset.action)actions[target.dataset.action]?.();if(target.dataset.option!==undefined)selectOption(+target.dataset.option);if(target.dataset.choice!==undefined){chosen=choices[+target.dataset.choice];show(sceneNumber('my-recovery'),{focus:true});}});
   story.addEventListener('error',e=>{if(e.target.tagName==='IMG'){e.target.classList.add('photo-failed');e.target.alt='이미지를 불러올 수 없습니다. '+e.target.alt;}},true);
   $('#previous').onclick=()=>show(index-1,{focus:true});$('#next').onclick=()=>show(index+1,{focus:true});

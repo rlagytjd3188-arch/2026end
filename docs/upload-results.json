@@ -1,0 +1,62 @@
+[
+  {
+    "viewport": "1440x960",
+    "build": "source",
+    "checks": "PASS",
+    "worker": "mocked; no production upload"
+  },
+  {
+    "viewport": "1440x960",
+    "build": "dist/RECOVERY44.html",
+    "checks": "PASS",
+    "worker": "mocked; no production upload"
+  },
+  {
+    "viewport": "844x390",
+    "build": "source",
+    "checks": "PASS",
+    "worker": "mocked; no production upload"
+  },
+  {
+    "viewport": "844x390",
+    "build": "dist/RECOVERY44.html",
+    "checks": "PASS",
+    "worker": "mocked; no production upload"
+  },
+  {
+    "viewport": "568x320",
+    "build": "source",
+    "checks": "PASS",
+    "worker": "mocked; no production upload"
+  },
+  {
+    "viewport": "568x320",
+    "build": "dist/RECOVERY44.html",
+    "checks": "PASS",
+    "worker": "mocked; no production upload"
+  },
+  {
+    "viewport": "390x844",
+    "build": "source",
+    "checks": "PASS",
+    "worker": "mocked; no production upload"
+  },
+  {
+    "viewport": "390x844",
+    "build": "dist/RECOVERY44.html",
+    "checks": "PASS",
+    "worker": "mocked; no production upload"
+  },
+  {
+    "viewport": "320x568",
+    "build": "source",
+    "checks": "PASS",
+    "worker": "mocked; no production upload"
+  },
+  {
+    "viewport": "320x568",
+    "build": "dist/RECOVERY44.html",
+    "checks": "PASS",
+    "worker": "mocked; no production upload"
+  }
+]

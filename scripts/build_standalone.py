@@ -8,6 +8,7 @@ photos={p.stem:uri(p,'image/webp') for p in (root/'assets/photos').glob('*.webp'
 css=(root/'styles.css').read_text()
 for p in (root/'assets').glob('*.woff'):css=css.replace('assets/'+p.name,uri(p,'font/woff'))
 js=(root/'app.js').read_text().replace("const path = id => `assets/photos/${id}.webp`;","const path = id => EMBEDDED_PHOTOS[id];")
+js=js.replace("script.src='assets/vendor/heic-to-1.6.7.js';","script.src="+json.dumps(uri(root/'assets/vendor/heic-to-1.6.7.js','text/javascript'))+";")
 js=js.replace("const res=await fetch('data/scenes.json');","const res={ok:true,json:async()=>EMBEDDED_SCENES};")
 scenes=json.loads((root/'data/scenes.json').read_text())
 for scene in scenes:
